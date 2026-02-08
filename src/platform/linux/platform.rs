@@ -152,10 +152,7 @@ impl LinuxCommon {
     pub fn new(signal: LoopSignal) -> (Self, PriorityQueueCalloopReceiver<RunnableVariant>) {
         let (main_sender, main_receiver) = PriorityQueueCalloopReceiver::new();
 
-        #[cfg(any(feature = "wayland", feature = "x11"))]
-        let text_system = Arc::new(crate::CosmicTextSystem::new());
-        #[cfg(not(any(feature = "wayland", feature = "x11")))]
-        let text_system = Arc::new(crate::NoopTextSystem::new());
+        let text_system = Arc::new(crate::ParleyTextSystem::new());
 
         let callbacks = PlatformHandlers::default();
 

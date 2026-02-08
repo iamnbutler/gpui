@@ -105,10 +105,7 @@ impl WindowsPlatform {
             rand::random::<u32>() as usize
         };
         let raw_window_handles = Arc::new(RwLock::new(SmallVec::new()));
-        let text_system = Arc::new(
-            DirectWriteTextSystem::new(&directx_devices)
-                .context("Error creating DirectWriteTextSystem")?,
-        );
+        let text_system = Arc::new(crate::ParleyTextSystem::new());
         register_platform_window_class();
         let mut context = PlatformWindowCreateContext {
             inner: None,
