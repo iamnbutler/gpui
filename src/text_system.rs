@@ -3,12 +3,14 @@ mod font_features;
 mod line;
 mod line_layout;
 mod line_wrapper;
+mod parley_text_system;
 
 pub use font_fallbacks::*;
 pub use font_features::*;
 pub use line::*;
 pub use line_layout::*;
 pub use line_wrapper::*;
+pub(crate) use parley_text_system::*;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 
