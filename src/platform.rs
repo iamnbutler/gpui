@@ -2,28 +2,35 @@ mod app_menu;
 mod keyboard;
 mod keystroke;
 
-#[cfg(any(target_os = "linux", target_os = "freebsd"))]
+#[cfg(all(any(target_os = "linux", target_os = "freebsd"), not(feature = "web")))]
 mod linux;
 
-#[cfg(target_os = "macos")]
+#[cfg(all(target_os = "macos", not(feature = "web")))]
 mod mac;
 
-#[cfg(any(
-    all(
-        any(target_os = "linux", target_os = "freebsd"),
-        any(feature = "x11", feature = "wayland")
-    ),
-    all(target_os = "macos", feature = "macos-blade")
+#[cfg(all(
+    not(feature = "web"),
+    any(
+        all(
+            any(target_os = "linux", target_os = "freebsd"),
+            any(feature = "x11", feature = "wayland")
+        ),
+        all(target_os = "macos", feature = "macos-blade")
+    )
 ))]
 mod blade;
 
 #[cfg(any(test, feature = "test-support"))]
 mod test;
 
-#[cfg(target_os = "windows")]
+#[cfg(all(target_os = "windows", not(feature = "web")))]
 mod windows;
 
+#[cfg(feature = "web")]
+mod web;
+
 #[cfg(all(
+    not(feature = "web"),
     feature = "screen-capture",
     any(
         target_os = "windows",
@@ -73,16 +80,23 @@ pub use app_menu::*;
 pub use keyboard::*;
 pub use keystroke::*;
 
-#[cfg(any(target_os = "linux", target_os = "freebsd"))]
+#[cfg(all(any(target_os = "linux", target_os = "freebsd"), not(feature = "web")))]
 pub(crate) use linux::*;
-#[cfg(target_os = "macos")]
+#[cfg(all(target_os = "macos", not(feature = "web")))]
 pub(crate) use mac::*;
-#[cfg(any(test, feature = "test-support"))]
+#[cfg(all(any(test, feature = "test-support"), not(feature = "web")))]
 pub(crate) use test::*;
-#[cfg(target_os = "windows")]
+#[cfg(all(target_os = "windows", not(feature = "web")))]
 pub(crate) use windows::*;
+#[cfg(feature = "web")]
+pub(crate) use web::*;
 
-#[cfg(all(target_os = "linux", feature = "wayland"))]
+// When both web and test-support are enabled, still export test types
+// (they don't conflict with web types).
+#[cfg(all(any(test, feature = "test-support"), feature = "web"))]
+pub(crate) use test::*;
+
+#[cfg(all(target_os = "linux", feature = "wayland", not(feature = "web")))]
 pub use linux::layer_shell;
 
 #[cfg(any(test, feature = "test-support"))]
@@ -93,12 +107,12 @@ pub fn background_executor() -> BackgroundExecutor {
     current_platform(true).background_executor()
 }
 
-#[cfg(target_os = "macos")]
+#[cfg(all(target_os = "macos", not(feature = "web")))]
 pub(crate) fn current_platform(headless: bool) -> Rc<dyn Platform> {
     Rc::new(MacPlatform::new(headless))
 }
 
-#[cfg(any(target_os = "linux", target_os = "freebsd"))]
+#[cfg(all(any(target_os = "linux", target_os = "freebsd"), not(feature = "web")))]
 pub(crate) fn current_platform(headless: bool) -> Rc<dyn Platform> {
     #[cfg(feature = "x11")]
     use anyhow::Context as _;
@@ -123,13 +137,18 @@ pub(crate) fn current_platform(headless: bool) -> Rc<dyn Platform> {
     }
 }
 
-#[cfg(target_os = "windows")]
+#[cfg(all(target_os = "windows", not(feature = "web")))]
 pub(crate) fn current_platform(_headless: bool) -> Rc<dyn Platform> {
     Rc::new(
         WindowsPlatform::new()
             .inspect_err(|err| show_error("Failed to launch", err.to_string()))
             .unwrap(),
     )
+}
+
+#[cfg(feature = "web")]
+pub(crate) fn current_platform(_headless: bool) -> Rc<dyn Platform> {
+    Rc::new(WebPlatform::new())
 }
 
 /// Return which compositor we're guessing we'll use.
