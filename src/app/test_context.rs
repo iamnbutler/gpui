@@ -230,7 +230,7 @@ impl TestAppContext {
         let mut cx = self.app.borrow_mut();
 
         // Some tests rely on the window size matching the bounds of the test display
-        let bounds = Bounds::maximized(None, &cx);
+        let bounds = crate::maximized_bounds(None, &cx);
         cx.open_window(
             WindowOptions {
                 window_bounds: Some(WindowBounds::Windowed(bounds)),
@@ -244,7 +244,7 @@ impl TestAppContext {
     /// Adds a new window with no content.
     pub fn add_empty_window(&mut self) -> &mut VisualTestContext {
         let mut cx = self.app.borrow_mut();
-        let bounds = Bounds::maximized(None, &cx);
+        let bounds = crate::maximized_bounds(None, &cx);
         let window = cx
             .open_window(
                 WindowOptions {
@@ -272,7 +272,7 @@ impl TestAppContext {
         V: 'static + Render,
     {
         let mut cx = self.app.borrow_mut();
-        let bounds = Bounds::maximized(None, &cx);
+        let bounds = crate::maximized_bounds(None, &cx);
         let window = cx
             .open_window(
                 WindowOptions {
@@ -831,7 +831,7 @@ impl VisualTestContext {
     pub fn draw<E>(
         &mut self,
         origin: Point<Pixels>,
-        space: impl Into<Size<AvailableSpace>>,
+        space: Size<AvailableSpace>,
         f: impl FnOnce(&mut Window, &mut App) -> E,
     ) -> (E::RequestLayoutState, E::PrepaintState)
     where
@@ -840,7 +840,7 @@ impl VisualTestContext {
         self.update(|window, cx| {
             window.invalidator.set_phase(DrawPhase::Prepaint);
             let mut element = Drawable::new(f(window, cx));
-            element.layout_as_root(space.into(), window, cx);
+            element.layout_as_root(space, window, cx);
             window.with_absolute_element_offset(origin, |window| element.prepaint(window, cx));
 
             window.invalidator.set_phase(DrawPhase::Paint);

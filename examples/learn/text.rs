@@ -14,8 +14,9 @@ mod example_prelude;
 
 use example_prelude::init_example;
 use gpui::{
-    App, Application, Bounds, Colors, Context, FontStyle, FontWeight, Hsla, Render, StyledText,
-    TextOverflow, Window, WindowBounds, WindowOptions, div, prelude::*, px, relative, size,
+    App, Application, Colors, Context, FontStyle, FontWeight, Hsla, Render, StyledText,
+    TextOverflow, Window, WindowBounds, WindowOptions, centered_bounds, div, prelude::*, px,
+    relative, size,
 };
 
 // Text Styling Examples
@@ -567,7 +568,7 @@ fn section(colors: &Colors, title: &'static str, content: impl IntoElement) -> i
 
 fn main() {
     Application::new().run(|cx: &mut App| {
-        let bounds = Bounds::centered(None, size(px(650.), px(900.)), cx);
+        let bounds = centered_bounds(None, size(px(650.), px(900.)), cx);
         cx.open_window(
             WindowOptions {
                 window_bounds: Some(WindowBounds::Windowed(bounds)),

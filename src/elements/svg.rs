@@ -3,7 +3,7 @@ use std::{fs, path::Path, sync::Arc};
 use crate::{
     App, Asset, Bounds, Element, GlobalElementId, Hitbox, InspectorElementId, InteractiveElement,
     Interactivity, IntoElement, LayoutId, Pixels, Point, Radians, SharedString, Size,
-    StyleRefinement, Styled, TransformationMatrix, Window, geometry::Negate as _, point, px,
+    Negate as _, StyleRefinement, Styled, TransformationMatrix, Window, point, px,
     radians, size,
 };
 use util::ResultExt;

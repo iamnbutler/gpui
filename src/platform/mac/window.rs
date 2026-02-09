@@ -500,7 +500,7 @@ impl MacWindowState {
     fn is_maximized(&self) -> bool {
         unsafe {
             let bounds = self.bounds();
-            let screen_size = self.native_window.screen().visibleFrame().into();
+            let screen_size = super::ns_rect_to_pixels(self.native_window.screen().visibleFrame());
             bounds.size == screen_size
         }
     }
@@ -2123,10 +2123,10 @@ extern "C" fn set_frame_size(this: &Object, _: Sel, size: NSSize) {
     let window_state = unsafe { get_window_state(this) };
     let mut lock = window_state.as_ref().lock();
 
-    let new_size = Size::<Pixels>::from(size);
+    let new_size = super::ns_size_to_pixels(size);
     let old_size = unsafe {
         let old_frame: NSRect = msg_send![this, frame];
-        Size::<Pixels>::from(old_frame.size)
+        super::ns_size_to_pixels(old_frame.size)
     };
 
     if old_size == new_size {

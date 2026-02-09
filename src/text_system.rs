@@ -39,10 +39,6 @@ use std::{
 #[repr(C)]
 pub struct FontId(pub usize);
 
-/// An opaque identifier for a specific font family.
-#[derive(Hash, PartialEq, Eq, Clone, Copy, Debug)]
-pub struct FontFamilyId(pub usize);
-
 pub(crate) const SUBPIXEL_VARIANTS_X: u8 = 4;
 
 pub(crate) const SUBPIXEL_VARIANTS_Y: u8 =
@@ -73,7 +69,7 @@ impl TextSystem {
             wrapper_pool: Mutex::default(),
             font_runs_pool: Mutex::default(),
             fallback_font_stack: smallvec![
-                font("Inter Variable"),
+                font(DEFAULT_FONT_FAMILY),
                 font("Helvetica"),    // macOS
                 font("DejaVu Sans"),  // Linux
                 font("Segoe UI"),     // Windows

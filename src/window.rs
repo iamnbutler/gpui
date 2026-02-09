@@ -2122,7 +2122,7 @@ impl Window {
 
         // Layout all root elements.
         let mut root_element = self.root.as_ref().unwrap().clone().into_any();
-        root_element.prepaint_as_root(Point::default(), root_size.into(), self, cx);
+        root_element.prepaint_as_root(Point::default(), AvailableSpace::from_size(root_size), self, cx);
 
         #[cfg(any(feature = "inspector", debug_assertions))]
         let inspector_element = self.prepaint_inspector(_inspector_width, cx);
@@ -2137,7 +2137,7 @@ impl Window {
         let mut tooltip_element = None;
         if let Some(prompt) = self.prompt.take() {
             let mut element = prompt.view.any_view().into_any();
-            element.prepaint_as_root(Point::default(), root_size.into(), self, cx);
+            element.prepaint_as_root(Point::default(), AvailableSpace::from_size(root_size), self, cx);
             prompt_element = Some(element);
             self.prompt = Some(prompt);
         } else if let Some(active_drag) = cx.active_drag.take() {
@@ -4642,7 +4642,7 @@ impl Window {
             let mut inspector_element = AnyView::from(inspector.clone()).into_any_element();
             inspector_element.prepaint_as_root(
                 point(self.viewport_size.width - inspector_width, px(0.0)),
-                size(inspector_width, self.viewport_size.height).into(),
+                AvailableSpace::from_size(size(inspector_width, self.viewport_size.height)),
                 self,
                 cx,
             );

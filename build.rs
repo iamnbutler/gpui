@@ -154,8 +154,8 @@ mod macos {
 
         let src_paths = [
             crate_dir.join("src/scene.rs"),
-            crate_dir.join("src/geometry.rs"),
-            crate_dir.join("src/color.rs"),
+            crate_dir.join("crates/gpui_core/src/geometry.rs"),
+            crate_dir.join("crates/gpui_core/src/color.rs"),
             crate_dir.join("src/window.rs"),
             crate_dir.join("src/platform.rs"),
             crate_dir.join("src/platform/mac/metal_renderer.rs"),

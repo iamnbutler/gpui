@@ -427,8 +427,8 @@ impl LineLayoutCache {
     }
 
     pub fn reuse_layouts(&self, range: Range<LineLayoutIndex>) {
-        let mut previous_frame = &mut *self.previous_frame.lock();
-        let mut current_frame = &mut *self.current_frame.write();
+        let previous_frame = &mut *self.previous_frame.lock();
+        let current_frame = &mut *self.current_frame.write();
 
         for key in &previous_frame.used_lines[range.start.lines_index..range.end.lines_index] {
             if let Some((key, line)) = previous_frame.lines.remove_entry(key) {
@@ -448,7 +448,7 @@ impl LineLayoutCache {
     }
 
     pub fn truncate_layouts(&self, index: LineLayoutIndex) {
-        let mut current_frame = &mut *self.current_frame.write();
+        let current_frame = &mut *self.current_frame.write();
         current_frame.used_lines.truncate(index.lines_index);
         current_frame
             .used_wrapped_lines

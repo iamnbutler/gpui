@@ -2117,6 +2117,7 @@ dependencies = [
  "futures",
  "gpui-macros",
  "gpui_collections",
+ "gpui_core",
  "gpui_http_client",
  "gpui_media",
  "gpui_refineable",
@@ -2204,6 +2205,20 @@ checksum = "ae39dc6d3d201be97e4bc08d96dbef2bc5b5c3d5734e05786e8cc3043342351c"
 dependencies = [
  "indexmap",
  "rustc-hash 2.1.1",
+]
+
+[[package]]
+name = "gpui_core"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "derive_more",
+ "gpui_refineable",
+ "gpui_util",
+ "schemars",
+ "serde",
+ "serde_json",
+ "taffy",
 ]
 
 [[package]]

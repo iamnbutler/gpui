@@ -14,9 +14,9 @@ use std::time::Duration;
 
 use anyhow::Result;
 use gpui::{
-    Animation, AnimationExt as _, App, Application, AssetSource, Bounds, Colors, Context, Hsla,
-    SharedString, Transformation, Window, WindowBounds, WindowOptions, bounce, div, ease_in_out,
-    linear, percentage, prelude::*, px, size as gpui_size, svg,
+    Animation, AnimationExt as _, App, Application, AssetSource, Colors, Context, Hsla,
+    SharedString, Transformation, Window, WindowBounds, WindowOptions, bounce, centered_bounds, div,
+    ease_in_out, linear, percentage, prelude::*, px, size as gpui_size, svg,
 };
 
 struct Assets {}
@@ -263,7 +263,7 @@ fn main() {
     Application::new()
         .with_assets(Assets {})
         .run(|cx: &mut App| {
-            let bounds = Bounds::centered(None, gpui_size(px(500.), px(650.)), cx);
+            let bounds = centered_bounds(None, gpui_size(px(500.), px(650.)), cx);
             cx.open_window(
                 WindowOptions {
                     window_bounds: Some(WindowBounds::Windowed(bounds)),

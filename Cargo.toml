@@ -1,3 +1,6 @@
+[workspace]
+members = ["crates/*"]
+
 [package]
 name = "gpui-ce"
 version = "0.3.3"
@@ -78,6 +81,7 @@ path = "src/gpui.rs"
 doctest = false
 
 [dependencies]
+gpui_core = { path = "crates/gpui_core" }
 anyhow = "1.0.86"
 async-task = "4.7"
 backtrace = { version = "0.3", optional = true }

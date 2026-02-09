@@ -1288,7 +1288,7 @@ impl WindowBounds {
 
     /// Creates a new window bounds that centers the window on the screen.
     pub fn centered(size: Size<Pixels>, cx: &App) -> Self {
-        WindowBounds::Windowed(Bounds::centered(None, size, cx))
+        WindowBounds::Windowed(crate::centered_bounds(None, size, cx))
     }
 }
 

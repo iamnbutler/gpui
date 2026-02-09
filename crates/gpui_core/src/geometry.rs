@@ -18,8 +18,6 @@ use std::{
 };
 use taffy::prelude::{TaffyGridLine, TaffyGridSpan};
 
-use crate::{App, DisplayId};
-
 /// Axis in a 2D cartesian space.
 #[derive(Copy, Clone, PartialEq, Eq, Serialize, Deserialize, Debug)]
 pub enum Axis {
@@ -59,7 +57,7 @@ pub trait Along {
 /// # Examples
 ///
 /// ```
-/// # use gpui::Point;
+/// # use gpui_core::Point;
 /// let point = Point { x: 10, y: 20 };
 /// println!("{:?}", point); // Outputs: Point { x: 10, y: 20 }
 /// ```
@@ -102,7 +100,7 @@ pub struct Point<T: Clone + Debug + Default + PartialEq> {
 /// # Examples
 ///
 /// ```
-/// use gpui::point;
+/// use gpui_core::point;
 /// let p = point(10, 20);
 /// assert_eq!(p.x, 10);
 /// assert_eq!(p.y, 20);
@@ -122,7 +120,7 @@ impl<T: Clone + Debug + Default + PartialEq> Point<T> {
     /// # Examples
     ///
     /// ```
-    /// use gpui::Point;
+    /// use gpui_core::Point;
     /// let p = Point::new(10, 20);
     /// assert_eq!(p.x, 10);
     /// assert_eq!(p.y, 20);
@@ -144,7 +142,7 @@ impl<T: Clone + Debug + Default + PartialEq> Point<T> {
     /// # Examples
     ///
     /// ```
-    /// # use gpui::Point;
+    /// # use gpui_core::Point;
     /// let p = Point { x: 3, y: 4 };
     /// let p_float = p.map(|coord| coord as f32);
     /// assert_eq!(p_float, Point { x: 3.0, y: 4.0 });
@@ -199,7 +197,7 @@ impl Point<Pixels> {
     /// # Examples
     ///
     /// ```
-    /// # use gpui::{Point, Pixels, ScaledPixels};
+    /// # use gpui_core::{Point, Pixels, ScaledPixels};
     /// let p = Point { x: Pixels::from(10.0), y: Pixels::from(20.0) };
     /// let scaled_p = p.scale(1.5);
     /// assert_eq!(scaled_p, Point { x: ScaledPixels::from(15.0), y: ScaledPixels::from(30.0) });
@@ -216,7 +214,7 @@ impl Point<Pixels> {
     /// # Examples
     ///
     /// ```
-    /// # use gpui::{Pixels, Point};
+    /// # use gpui_core::{Pixels, Point};
     /// let p = Point { x: Pixels::from(3.0), y: Pixels::from(4.0) };
     /// assert_eq!(p.magnitude(), 5.0);
     /// ```
@@ -292,7 +290,7 @@ where
     /// # Examples
     ///
     /// ```
-    /// # use gpui::Point;
+    /// # use gpui_core::Point;
     /// let p1 = Point { x: 3, y: 7 };
     /// let p2 = Point { x: 5, y: 2 };
     /// let max_point = p1.max(&p2);
@@ -322,7 +320,7 @@ where
     /// # Examples
     ///
     /// ```
-    /// # use gpui::Point;
+    /// # use gpui_core::Point;
     /// let p1 = Point { x: 3, y: 7 };
     /// let p2 = Point { x: 5, y: 2 };
     /// let min_point = p1.min(&p2);
@@ -358,7 +356,7 @@ where
     /// # Examples
     ///
     /// ```
-    /// # use gpui::Point;
+    /// # use gpui_core::Point;
     /// let p = Point { x: 10, y: 20 };
     /// let min = Point { x: 0, y: 5 };
     /// let max = Point { x: 15, y: 25 };
@@ -420,7 +418,7 @@ impl<T: Clone + Debug + Default + PartialEq> Size<T> {
 /// # Examples
 ///
 /// ```
-/// use gpui::size;
+/// use gpui_core::size;
 /// let my_size = size(10, 20);
 /// assert_eq!(my_size.width, 10);
 /// assert_eq!(my_size.height, 20);
@@ -449,7 +447,7 @@ where
     /// # Examples
     ///
     /// ```
-    /// # use gpui::Size;
+    /// # use gpui_core::Size;
     /// let my_size = Size { width: 10, height: 20 };
     /// let my_new_size = my_size.map(|dimension| dimension as f32 * 1.5);
     /// assert_eq!(my_new_size, Size { width: 15.0, height: 30.0 });
@@ -492,7 +490,7 @@ impl Size<Pixels> {
     /// # Examples
     ///
     /// ```
-    /// # use gpui::{Size, Pixels, ScaledPixels};
+    /// # use gpui_core::{Size, Pixels, ScaledPixels};
     /// let size = Size { width: Pixels::from(100.0), height: Pixels::from(50.0) };
     /// let scaled_size = size.scale(2.0);
     /// assert_eq!(scaled_size, Size { width: ScaledPixels::from(200.0), height: ScaledPixels::from(100.0) });
@@ -546,7 +544,7 @@ where
     /// # Examples
     ///
     /// ```
-    /// # use gpui::Size;
+    /// # use gpui_core::Size;
     /// let size1 = Size { width: 30, height: 40 };
     /// let size2 = Size { width: 50, height: 20 };
     /// let max_size = size1.max(&size2);
@@ -576,7 +574,7 @@ where
     /// # Examples
     ///
     /// ```
-    /// # use gpui::Size;
+    /// # use gpui_core::Size;
     /// let size1 = Size { width: 30, height: 40 };
     /// let size2 = Size { width: 50, height: 20 };
     /// let min_size = size1.min(&size2);
@@ -740,7 +738,7 @@ impl Size<Length> {
 /// # Examples
 ///
 /// ```
-/// # use gpui::{Bounds, Point, Size};
+/// # use gpui_core::{Bounds, Point, Size};
 /// let origin = Point { x: 0, y: 0 };
 /// let size = Size { width: 10, height: 20 };
 /// let bounds = Bounds::new(origin, size);
@@ -764,36 +762,6 @@ pub fn bounds<T: Clone + Debug + Default + PartialEq>(
     size: Size<T>,
 ) -> Bounds<T> {
     Bounds { origin, size }
-}
-
-impl Bounds<Pixels> {
-    /// Generate a centered bounds for the given display or primary display if none is provided
-    pub fn centered(display_id: Option<DisplayId>, size: Size<Pixels>, cx: &App) -> Self {
-        let display = display_id
-            .and_then(|id| cx.find_display(id))
-            .or_else(|| cx.primary_display());
-
-        display
-            .map(|display| Bounds::centered_at(display.bounds().center(), size))
-            .unwrap_or_else(|| Bounds {
-                origin: point(px(0.), px(0.)),
-                size,
-            })
-    }
-
-    /// Generate maximized bounds for the given display or primary display if none is provided
-    pub fn maximized(display_id: Option<DisplayId>, cx: &App) -> Self {
-        let display = display_id
-            .and_then(|id| cx.find_display(id))
-            .or_else(|| cx.primary_display());
-
-        display
-            .map(|display| display.bounds())
-            .unwrap_or_else(|| Bounds {
-                origin: point(px(0.), px(0.)),
-                size: size(px(1024.), px(768.)),
-            })
-    }
 }
 
 impl<T> Bounds<T>
@@ -837,7 +805,7 @@ where
     /// # Examples
     ///
     /// ```
-    /// # use gpui::{Bounds, Point};
+    /// # use gpui_core::{Bounds, Point};
     /// let top_left = Point { x: 0, y: 0 };
     /// let bottom_right = Point { x: 10, y: 10 };
     /// let bounds = Bounds::from_corners(top_left, bottom_right);
@@ -915,7 +883,7 @@ where
     /// # Examples
     ///
     /// ```
-    /// # use gpui::{Bounds, Point, Size};
+    /// # use gpui_core::{Bounds, Point, Size};
     /// let bounds1 = Bounds {
     ///     origin: Point { x: 0, y: 0 },
     ///     size: Size { width: 10, height: 10 },
@@ -960,7 +928,7 @@ where
     /// # Examples
     ///
     /// ```
-    /// # use gpui::{Bounds, Point, Size};
+    /// # use gpui_core::{Bounds, Point, Size};
     /// let bounds = Bounds {
     ///     origin: Point { x: 0, y: 0 },
     ///     size: Size { width: 10, height: 20 },
@@ -990,7 +958,7 @@ where
     /// # Examples
     ///
     /// ```
-    /// # use gpui::{Bounds, Point, Size};
+    /// # use gpui_core::{Bounds, Point, Size};
     /// let bounds = Bounds {
     ///     origin: Point { x: 0, y: 0 },
     ///     size: Size { width: 10, height: 20 },
@@ -1022,7 +990,7 @@ where
     /// # Examples
     ///
     /// ```
-    /// # use gpui::{Bounds, Point, Size};
+    /// # use gpui_core::{Bounds, Point, Size};
     /// let mut bounds = Bounds {
     ///     origin: Point { x: 10, y: 10 },
     ///     size: Size { width: 10, height: 10 },
@@ -1094,7 +1062,7 @@ impl<T: PartialOrd + Add<T, Output = T> + Sub<Output = T> + Clone + Debug + Defa
     /// # Examples
     ///
     /// ```
-    /// # use gpui::{Bounds, Point, Size};
+    /// # use gpui_core::{Bounds, Point, Size};
     /// let bounds1 = Bounds {
     ///     origin: Point { x: 0, y: 0 },
     ///     size: Size { width: 10, height: 10 },
@@ -1133,7 +1101,7 @@ impl<T: PartialOrd + Add<T, Output = T> + Sub<Output = T> + Clone + Debug + Defa
     /// # Examples
     ///
     /// ```
-    /// # use gpui::{Bounds, Point, Size};
+    /// # use gpui_core::{Bounds, Point, Size};
     /// let bounds1 = Bounds {
     ///     origin: Point { x: 0, y: 0 },
     ///     size: Size { width: 10, height: 10 },
@@ -1291,7 +1259,7 @@ where
     /// # Examples
     ///
     /// ```
-    /// # use gpui::{Bounds, Point, Size};
+    /// # use gpui_core::{Bounds, Point, Size};
     /// let bounds = Bounds {
     ///     origin: Point { x: 0, y: 0 },
     ///     size: Size { width: 10, height: 20 },
@@ -1315,7 +1283,7 @@ where
     /// # Examples
     ///
     /// ```
-    /// # use gpui::{Bounds, Point, Size};
+    /// # use gpui_core::{Bounds, Point, Size};
     /// let bounds = Bounds {
     ///     origin: Point { x: 0, y: 0 },
     ///     size: Size { width: 10, height: 20 },
@@ -1339,7 +1307,7 @@ where
     /// # Examples
     ///
     /// ```
-    /// # use gpui::{Bounds, Point, Size};
+    /// # use gpui_core::{Bounds, Point, Size};
     /// let bounds = Bounds {
     ///     origin: Point { x: 0, y: 0 },
     ///     size: Size { width: 10, height: 20 },
@@ -1363,7 +1331,7 @@ where
     /// # Examples
     ///
     /// ```
-    /// use gpui::{Bounds, Corner, Point, Size};
+    /// use gpui_core::{Bounds, Corner, Point, Size};
     /// let bounds = Bounds {
     ///     origin: Point { x: 0, y: 0 },
     ///     size: Size { width: 10, height: 20 },
@@ -1403,7 +1371,7 @@ where
     /// # Examples
     ///
     /// ```
-    /// # use gpui::{Point, Bounds, Size};
+    /// # use gpui_core::{Point, Bounds, Size};
     /// let bounds = Bounds {
     ///     origin: Point { x: 0, y: 0 },
     ///     size: Size { width: 10, height: 10 },
@@ -1438,7 +1406,7 @@ where
     /// # Examples
     ///
     /// ```
-    /// # use gpui::{Bounds, Point, Size};
+    /// # use gpui_core::{Bounds, Point, Size};
     /// let outer_bounds = Bounds {
     ///     origin: Point { x: 0, y: 0 },
     ///     size: Size { width: 20, height: 20 },
@@ -1476,7 +1444,7 @@ where
     /// # Examples
     ///
     /// ```
-    /// # use gpui::{Bounds, Point, Size};
+    /// # use gpui_core::{Bounds, Point, Size};
     /// let bounds = Bounds {
     ///     origin: Point { x: 10.0, y: 10.0 },
     ///     size: Size { width: 10.0, height: 20.0 },
@@ -1503,7 +1471,7 @@ where
     /// # Examples
     ///
     /// ```
-    /// # use gpui::{Bounds, Point, Size};
+    /// # use gpui_core::{Bounds, Point, Size};
     /// let bounds = Bounds {
     ///     origin: Point { x: 10.0, y: 10.0 },
     ///     size: Size { width: 10.0, height: 20.0 },
@@ -1527,7 +1495,7 @@ where
     /// # Examples
     ///
     /// ```
-    /// # use gpui::{Bounds, Point, Size};
+    /// # use gpui_core::{Bounds, Point, Size};
     /// let bounds = Bounds {
     ///     origin: Point { x: 10.0, y: 10.0 },
     ///     size: Size { width: 10.0, height: 20.0 },
@@ -1589,7 +1557,7 @@ impl<T: Clone + Debug + Default + PartialEq + Display + Add<T, Output = T>> Disp
 
 impl Size<DevicePixels> {
     /// Converts the size from physical to logical pixels.
-    pub(crate) fn to_pixels(self, scale_factor: f32) -> Size<Pixels> {
+    pub fn to_pixels(self, scale_factor: f32) -> Size<Pixels> {
         size(
             px(self.width.0 as f32 / scale_factor),
             px(self.height.0 as f32 / scale_factor),
@@ -1599,7 +1567,7 @@ impl Size<DevicePixels> {
 
 impl Size<Pixels> {
     /// Converts the size from logical to physical pixels.
-    pub(crate) fn to_device_pixels(self, scale_factor: f32) -> Size<DevicePixels> {
+    pub fn to_device_pixels(self, scale_factor: f32) -> Size<DevicePixels> {
         size(
             DevicePixels((self.width.0 * scale_factor).round() as i32),
             DevicePixels((self.height.0 * scale_factor).round() as i32),
@@ -1626,7 +1594,7 @@ impl Bounds<Pixels> {
     /// # Examples
     ///
     /// ```
-    /// # use gpui::{Bounds, Point, Size, Pixels, ScaledPixels, DevicePixels};
+    /// # use gpui_core::{Bounds, Point, Size, Pixels, ScaledPixels, DevicePixels};
     /// let bounds = Bounds {
     ///     origin: Point { x: Pixels::from(10.0), y: Pixels::from(20.0) },
     ///     size: Size { width: Pixels::from(30.0), height: Pixels::from(40.0) },
@@ -1683,7 +1651,7 @@ impl Bounds<DevicePixels> {
 /// # Examples
 ///
 /// ```
-/// # use gpui::Edges;
+/// # use gpui_core::Edges;
 /// let edges = Edges {
 ///     top: 10.0,
 ///     right: 20.0,
@@ -1759,7 +1727,7 @@ impl<T: Clone + Debug + Default + PartialEq> Edges<T> {
     /// # Examples
     ///
     /// ```
-    /// # use gpui::Edges;
+    /// # use gpui_core::Edges;
     /// let uniform_edges = Edges::all(10.0);
     /// assert_eq!(uniform_edges.top, 10.0);
     /// assert_eq!(uniform_edges.right, 10.0);
@@ -1792,7 +1760,7 @@ impl<T: Clone + Debug + Default + PartialEq> Edges<T> {
     /// # Examples
     ///
     /// ```
-    /// # use gpui::Edges;
+    /// # use gpui_core::Edges;
     /// let edges = Edges { top: 10, right: 20, bottom: 30, left: 40 };
     /// let edges_float = edges.map(|&value| value as f32 * 1.1);
     /// assert_eq!(edges_float, Edges { top: 11.0, right: 22.0, bottom: 33.0, left: 44.0 });
@@ -1824,7 +1792,7 @@ impl<T: Clone + Debug + Default + PartialEq> Edges<T> {
     /// # Examples
     ///
     /// ```
-    /// # use gpui::Edges;
+    /// # use gpui_core::Edges;
     /// let edges = Edges {
     ///     top: 10,
     ///     right: 0,
@@ -1856,7 +1824,7 @@ impl Edges<Length> {
     /// # Examples
     ///
     /// ```
-    /// # use gpui::{Edges, Length};
+    /// # use gpui_core::{Edges, Length};
     /// let auto_edges = Edges::auto();
     /// assert_eq!(auto_edges.top, Length::Auto);
     /// assert_eq!(auto_edges.right, Length::Auto);
@@ -1884,7 +1852,7 @@ impl Edges<Length> {
     /// # Examples
     ///
     /// ```
-    /// # use gpui::{DefiniteLength, Edges, Length, Pixels};
+    /// # use gpui_core::{DefiniteLength, Edges, Length, Pixels};
     /// let no_edges = Edges::<Length>::zero();
     /// assert_eq!(no_edges.top, Length::Definite(DefiniteLength::from(Pixels::ZERO)));
     /// assert_eq!(no_edges.right, Length::Definite(DefiniteLength::from(Pixels::ZERO)));
@@ -1914,7 +1882,7 @@ impl Edges<DefiniteLength> {
     /// # Examples
     ///
     /// ```
-    /// # use gpui::{px, DefiniteLength, Edges};
+    /// # use gpui_core::{px, DefiniteLength, Edges};
     /// let no_edges = Edges::<DefiniteLength>::zero();
     /// assert_eq!(no_edges.top, DefiniteLength::from(px(0.)));
     /// assert_eq!(no_edges.right, DefiniteLength::from(px(0.)));
@@ -1947,7 +1915,7 @@ impl Edges<DefiniteLength> {
     /// # Examples
     ///
     /// ```
-    /// # use gpui::{Edges, DefiniteLength, px, AbsoluteLength, rems, Size};
+    /// # use gpui_core::{Edges, DefiniteLength, px, AbsoluteLength, rems, Size};
     /// let edges = Edges {
     ///     top: DefiniteLength::Absolute(AbsoluteLength::Pixels(px(10.0))),
     ///     right: DefiniteLength::Fraction(0.5),
@@ -1989,7 +1957,7 @@ impl Edges<AbsoluteLength> {
     /// # Examples
     ///
     /// ```
-    /// # use gpui::{AbsoluteLength, Edges, Pixels};
+    /// # use gpui_core::{AbsoluteLength, Edges, Pixels};
     /// let no_edges = Edges::<AbsoluteLength>::zero();
     /// assert_eq!(no_edges.top, AbsoluteLength::Pixels(Pixels::ZERO));
     /// assert_eq!(no_edges.right, AbsoluteLength::Pixels(Pixels::ZERO));
@@ -2021,7 +1989,7 @@ impl Edges<AbsoluteLength> {
     /// # Examples
     ///
     /// ```
-    /// # use gpui::{Edges, AbsoluteLength, Pixels, px, rems};
+    /// # use gpui_core::{Edges, AbsoluteLength, Pixels, px, rems};
     /// let edges = Edges {
     ///     top: AbsoluteLength::Pixels(px(10.0)),
     ///     right: AbsoluteLength::Rems(rems(1.0)),
@@ -2062,7 +2030,7 @@ impl Edges<Pixels> {
     /// # Examples
     ///
     /// ```
-    /// # use gpui::{Edges, Pixels, ScaledPixels};
+    /// # use gpui_core::{Edges, Pixels, ScaledPixels};
     /// let edges = Edges {
     ///     top: Pixels::from(10.0),
     ///     right: Pixels::from(20.0),
@@ -2131,7 +2099,7 @@ impl Corner {
     /// # Examples
     ///
     /// ```
-    /// # use gpui::Corner;
+    /// # use gpui_core::Corner;
     /// assert_eq!(Corner::TopLeft.opposite_corner(), Corner::BottomRight);
     /// ```
     #[must_use]
@@ -2149,7 +2117,7 @@ impl Corner {
     /// # Examples
     ///
     /// ```
-    /// # use gpui::{Axis, Corner};
+    /// # use gpui_core::{Axis, Corner};
     /// let result = Corner::TopLeft.other_side_corner_along(Axis::Horizontal);
     /// assert_eq!(result, Corner::TopRight);
     /// ```
@@ -2210,7 +2178,7 @@ where
     /// # Examples
     ///
     /// ```
-    /// # use gpui::Corners;
+    /// # use gpui_core::Corners;
     /// let uniform_corners = Corners::all(5.0);
     /// assert_eq!(uniform_corners.top_left, 5.0);
     /// assert_eq!(uniform_corners.top_right, 5.0);
@@ -2235,7 +2203,7 @@ where
     /// # Examples
     ///
     /// ```
-    /// # use gpui::{Corner, Corners};
+    /// # use gpui_core::{Corner, Corners};
     /// let corners = Corners {
     ///     top_left: 1,
     ///     top_right: 2,
@@ -2269,7 +2237,7 @@ impl Corners<AbsoluteLength> {
     /// # Examples
     ///
     /// ```
-    /// # use gpui::{Corners, AbsoluteLength, Pixels, Rems, Size};
+    /// # use gpui_core::{Corners, AbsoluteLength, Pixels, Rems, Size};
     /// let corners = Corners {
     ///     top_left: AbsoluteLength::Pixels(Pixels::from(15.0)),
     ///     top_right: AbsoluteLength::Rems(Rems(1.0)),
@@ -2310,7 +2278,7 @@ impl Corners<Pixels> {
     /// # Examples
     ///
     /// ```
-    /// # use gpui::{Corners, Pixels, ScaledPixels};
+    /// # use gpui_core::{Corners, Pixels, ScaledPixels};
     /// let corners = Corners {
     ///     top_left: Pixels::from(10.0),
     ///     top_right: Pixels::from(20.0),
@@ -2387,7 +2355,7 @@ impl<T: Clone + Debug + Default + PartialEq> Corners<T> {
     /// # Examples
     ///
     /// ```
-    /// # use gpui::{Corners, Pixels, Rems};
+    /// # use gpui_core::{Corners, Pixels, Rems};
     /// let corners = Corners {
     ///     top_left: Pixels::from(10.0),
     ///     top_right: Pixels::from(20.0),
@@ -2542,7 +2510,7 @@ impl From<Percentage> for Radians {
 /// # Examples
 ///
 /// ```
-/// use gpui::{Pixels, ScaledPixels};
+/// use gpui_core::{Pixels, ScaledPixels};
 ///
 /// // Define a length of 10 pixels
 /// let length = Pixels::from(10.0);
@@ -2568,7 +2536,7 @@ impl From<Percentage> for Radians {
     JsonSchema,
 )]
 #[repr(transparent)]
-pub struct Pixels(pub(crate) f32);
+pub struct Pixels(pub f32);
 
 impl Div for Pixels {
     type Output = f32;
@@ -2875,7 +2843,7 @@ impl DevicePixels {
     /// # Examples
     ///
     /// ```
-    /// # use gpui::DevicePixels;
+    /// # use gpui_core::DevicePixels;
     /// let pixels = DevicePixels(10); // 10 device pixels
     /// let bytes_per_pixel = 4; // Assume each pixel is represented by 4 bytes (e.g., RGBA)
     /// let total_bytes = pixels.to_bytes(bytes_per_pixel);
@@ -2949,7 +2917,7 @@ impl From<usize> for DevicePixels {
 /// display resolutions.
 #[derive(Clone, Copy, Default, Add, AddAssign, Sub, SubAssign, Div, DivAssign, PartialEq)]
 #[repr(transparent)]
-pub struct ScaledPixels(pub(crate) f32);
+pub struct ScaledPixels(pub f32);
 
 impl ScaledPixels {
     /// Floors the `ScaledPixels` value to the nearest whole number.
@@ -3198,7 +3166,7 @@ impl AbsoluteLength {
     /// # Examples
     ///
     /// ```
-    /// # use gpui::{AbsoluteLength, Pixels, Rems};
+    /// # use gpui_core::{AbsoluteLength, Pixels, Rems};
     /// let length_in_pixels = AbsoluteLength::Pixels(Pixels::from(42.0));
     /// let length_in_rems = AbsoluteLength::Rems(Rems(2.0));
     /// let rem_size = Pixels::from(16.0);
@@ -3342,7 +3310,7 @@ impl DefiniteLength {
     /// # Examples
     ///
     /// ```
-    /// # use gpui::{DefiniteLength, AbsoluteLength, Pixels, px, rems};
+    /// # use gpui_core::{DefiniteLength, AbsoluteLength, Pixels, px, rems};
     /// let length_in_pixels = DefiniteLength::Absolute(AbsoluteLength::Pixels(px(42.0)));
     /// let length_in_rems = DefiniteLength::Absolute(AbsoluteLength::Rems(rems(2.0)));
     /// let length_as_fraction = DefiniteLength::Fraction(0.5);
@@ -3906,5 +3874,57 @@ mod tests {
 
         // Test Case 3: Bounds intersecting with themselves
         assert!(bounds1.intersects(&bounds1));
+    }
+}
+
+// Conversions between gpui_core and taffy geometry types.
+
+impl<T, T2> From<taffy::geometry::Point<T>> for Point<T2>
+where
+    T: Into<T2>,
+    T2: Clone + Debug + Default + PartialEq,
+{
+    fn from(point: taffy::geometry::Point<T>) -> Point<T2> {
+        Point {
+            x: point.x.into(),
+            y: point.y.into(),
+        }
+    }
+}
+
+impl<T, T2> From<Point<T>> for taffy::geometry::Point<T2>
+where
+    T: Into<T2> + Clone + Debug + Default + PartialEq,
+{
+    fn from(val: Point<T>) -> Self {
+        taffy::geometry::Point {
+            x: val.x.into(),
+            y: val.y.into(),
+        }
+    }
+}
+
+impl<T, U> From<taffy::geometry::Size<T>> for Size<U>
+where
+    T: Into<U>,
+    U: Clone + Debug + Default + PartialEq,
+{
+    fn from(taffy_size: taffy::geometry::Size<T>) -> Self {
+        Size {
+            width: taffy_size.width.into(),
+            height: taffy_size.height.into(),
+        }
+    }
+}
+
+impl<T, U> From<Size<T>> for taffy::geometry::Size<U>
+where
+    T: Into<U> + Clone + Debug + Default + PartialEq,
+{
+    fn from(size: Size<T>) -> Self {
+        taffy::geometry::Size {
+            width: size.width.into(),
+            height: size.height.into(),
+        }
     }
 }
