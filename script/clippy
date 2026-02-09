@@ -3,7 +3,12 @@
 set -euo pipefail
 
 set -x
-"${CARGO:-cargo}" clippy "$@" --release --all-targets --all-features -- --deny warnings
+# Note: --all-features is not used because "web" is mutually exclusive with native platforms.
+# Run native features (all except web):
+"${CARGO:-cargo}" clippy "$@" --release --all-targets --features "test-support,screen-capture,macos-blade,inspector,runtime_shaders,leak-detection,windows-manifest" -- --deny warnings
+
+# Run web feature separately (allow dead_code since native-only code is unused):
+"${CARGO:-cargo}" clippy "$@" --release --all-targets --no-default-features --features "web" -- --deny warnings --allow dead_code --allow unused_imports
 
 # If local, run other checks if we have the tools installed.
 if [[ -z "${GITHUB_ACTIONS+x}" ]]; then
