@@ -13,7 +13,6 @@ mod app;
 mod arena;
 mod asset_cache;
 mod assets;
-mod bounds_tree;
 /// The default colors used by GPUI.
 pub mod default_colors;
 mod element;
@@ -33,7 +32,6 @@ pub mod prelude;
 mod profiler;
 #[cfg(any(target_os = "windows", target_os = "linux"))]
 mod queue;
-mod scene;
 mod style;
 mod styled;
 mod subscription;
@@ -92,7 +90,6 @@ pub use profiler::*;
 #[cfg(any(target_os = "windows", target_os = "linux"))]
 pub(crate) use queue::{PriorityQueueReceiver, PriorityQueueSender};
 pub use refineable::*;
-pub use scene::*;
 pub use smol::Timer;
 use std::{any::Any, future::Future};
 pub use style::*;

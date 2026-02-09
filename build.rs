@@ -1,9 +1,6 @@
 #![allow(clippy::disallowed_methods, reason = "build scripts are exempt")]
 #![cfg_attr(any(not(target_os = "macos"), feature = "macos-blade"), allow(unused))]
 
-//TODO: consider generating shader code for WGSL
-//TODO: deprecate "runtime-shaders" and "macos-blade"
-
 use std::env;
 
 fn main() {
@@ -68,10 +65,6 @@ mod macos {
         #[cfg(not(feature = "macos-blade"))]
         {
             let header_path = generate_shader_bindings();
-
-            #[cfg(feature = "runtime_shaders")]
-            emit_stitched_shaders(&header_path);
-            #[cfg(not(feature = "runtime_shaders"))]
             compile_metal_shaders(&header_path);
         }
     }
@@ -153,7 +146,9 @@ mod macos {
         let mut builder = cbindgen::Builder::new();
 
         let src_paths = [
-            crate_dir.join("src/scene.rs"),
+            crate_dir.join("crates/gpui_core/src/scene.rs"),
+            crate_dir.join("crates/gpui_core/src/atlas.rs"),
+            crate_dir.join("crates/gpui_core/src/content_mask.rs"),
             crate_dir.join("crates/gpui_core/src/geometry.rs"),
             crate_dir.join("crates/gpui_core/src/color.rs"),
             crate_dir.join("src/window.rs"),
@@ -174,27 +169,6 @@ mod macos {
         output_path
     }
 
-    /// To enable runtime compilation, we need to "stitch" the shaders file with the generated header
-    /// so that it is self-contained.
-    #[cfg(feature = "runtime_shaders")]
-    fn emit_stitched_shaders(header_path: &Path) {
-        use std::str::FromStr;
-        fn stitch_header(header: &Path, shader_path: &Path) -> std::io::Result<PathBuf> {
-            let header_contents = std::fs::read_to_string(header)?;
-            let shader_contents = std::fs::read_to_string(shader_path)?;
-            let stitched_contents = format!("{header_contents}\n{shader_contents}");
-            let out_path =
-                PathBuf::from(env::var("OUT_DIR").unwrap()).join("stitched_shaders.metal");
-            std::fs::write(&out_path, stitched_contents)?;
-            Ok(out_path)
-        }
-        let shader_source_path = "./src/platform/mac/shaders.metal";
-        let shader_path = PathBuf::from_str(shader_source_path).unwrap();
-        stitch_header(header_path, &shader_path).unwrap();
-        println!("cargo:rerun-if-changed={}", &shader_source_path);
-    }
-
-    #[cfg(not(feature = "runtime_shaders"))]
     fn compile_metal_shaders(header_path: &Path) {
         use std::process::{self, Command};
         let shader_path = "./src/platform/mac/shaders.metal";

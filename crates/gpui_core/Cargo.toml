@@ -9,6 +9,7 @@ publish = false
 [dependencies]
 anyhow = "1.0.86"
 derive_more = "0.99.17"
+etagere = "0.2"
 refineable = { package = "gpui_refineable", version = "0.2.2" }
 schemars = { version = "1.0", features = ["indexmap2"] }
 serde = { version = "1.0.221", features = ["derive", "rc"] }
@@ -16,5 +17,9 @@ serde_json = { version = "1.0.144", features = ["preserve_order", "raw_value"] }
 taffy = "=0.9.0"
 util = { package = "gpui_util", path = "../gpui_util" }
 
+[target.'cfg(target_os = "macos")'.dependencies]
+core-video = { version = "0.4.3", features = ["metal"] }
+
 [dev-dependencies]
+rand = "0.9"
 serde_json = { version = "1.0.144", features = ["preserve_order", "raw_value"] }

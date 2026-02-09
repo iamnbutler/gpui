@@ -1979,9 +1979,12 @@ name = "gpui_core"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "core-video",
  "derive_more",
+ "etagere",
  "gpui_refineable",
  "gpui_util",
+ "rand 0.9.2",
  "schemars",
  "serde",
  "serde_json",
