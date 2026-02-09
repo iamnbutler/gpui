@@ -1,6 +1,6 @@
 use gpui::{
-    App, Application, Bounds, Context, Div, ElementId, FocusHandle, KeyBinding, SharedString,
-    Stateful, Window, WindowBounds, WindowOptions, actions, div, prelude::*, px, size,
+    App, Application, Context, Div, ElementId, FocusHandle, KeyBinding, SharedString, Stateful,
+    Window, WindowBounds, WindowOptions, actions, centered_bounds, div, prelude::*, px, size,
 };
 
 actions!(example, [Tab, TabPrev]);
@@ -140,7 +140,7 @@ fn main() {
             KeyBinding::new("shift-tab", TabPrev, None),
         ]);
 
-        let bounds = Bounds::centered(None, size(px(800.), px(600.0)), cx);
+        let bounds = centered_bounds(None, size(px(800.), px(600.0)), cx);
         cx.open_window(
             WindowOptions {
                 window_bounds: Some(WindowBounds::Windowed(bounds)),

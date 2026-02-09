@@ -17,8 +17,8 @@ mod example_prelude;
 
 use example_prelude::init_example;
 use gpui::{
-    App, Application, Bounds, Colors, Context, FontStyle, FontWeight, Hsla, Render, Rgba,
-    StyledText, Window, WindowBounds, WindowOptions, div, prelude::*, px, relative, rems, size,
+    App, Application, Colors, Context, FontStyle, FontWeight, Hsla, Render, Rgba, StyledText,
+    Window, WindowBounds, WindowOptions, centered_bounds, div, prelude::*, px, relative, rems, size,
 };
 
 // Section 1: Font sizes from tiny to large
@@ -930,7 +930,7 @@ fn section(colors: &Colors, title: &'static str, content: impl IntoElement) -> i
 
 fn main() {
     Application::new().run(|cx: &mut App| {
-        let bounds = Bounds::centered(None, size(px(850.), px(1200.)), cx);
+        let bounds = centered_bounds(None, size(px(850.), px(1200.)), cx);
         cx.open_window(
             WindowOptions {
                 window_bounds: Some(WindowBounds::Windowed(bounds)),

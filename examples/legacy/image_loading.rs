@@ -1,10 +1,10 @@
 use std::{path::Path, sync::Arc, time::Duration};
 
 use gpui::{
-    Animation, AnimationExt, App, Application, Asset, AssetLogger, AssetSource, Bounds, Context,
-    Hsla, ImageAssetLoader, ImageCacheError, ImgResourceLoader, LOADING_DELAY, Length, RenderImage,
-    Resource, SharedString, Window, WindowBounds, WindowOptions, black, div, img, prelude::*,
-    pulsating_between, px, red, size,
+    Animation, AnimationExt, App, Application, Asset, AssetLogger, AssetSource, Context, Hsla,
+    ImageAssetLoader, ImageCacheError, ImgResourceLoader, LOADING_DELAY, Length, RenderImage,
+    Resource, SharedString, Window, WindowBounds, WindowOptions, black, centered_bounds, div, img,
+    prelude::*, pulsating_between, px, red, size,
 };
 
 struct Assets {}
@@ -197,7 +197,7 @@ fn main() {
         .with_assets(Assets {})
         .run(|cx: &mut App| {
             let options = WindowOptions {
-                window_bounds: Some(WindowBounds::Windowed(Bounds::centered(
+                window_bounds: Some(WindowBounds::Windowed(centered_bounds(
                     None,
                     size(px(300.), px(300.)),
                     cx,

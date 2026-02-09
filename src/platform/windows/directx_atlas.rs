@@ -219,7 +219,7 @@ impl DirectXAtlasState {
                 kind,
             },
             bytes_per_pixel,
-            allocator: etagere::BucketedAtlasAllocator::new(size.into()),
+            allocator: etagere::BucketedAtlasAllocator::new(to_etagere_size(size)),
             texture,
             view,
             live_atlas_keys: 0,
@@ -247,12 +247,12 @@ impl DirectXAtlasState {
 
 impl DirectXAtlasTexture {
     fn allocate(&mut self, size: Size<DevicePixels>) -> Option<AtlasTile> {
-        let allocation = self.allocator.allocate(size.into())?;
+        let allocation = self.allocator.allocate(to_etagere_size(size))?;
         let tile = AtlasTile {
             texture_id: self.id,
             tile_id: allocation.id.into(),
             bounds: Bounds {
-                origin: allocation.rectangle.min.into(),
+                origin: from_etagere_point(allocation.rectangle.min),
                 size,
             },
             padding: 0,
@@ -295,17 +295,13 @@ impl DirectXAtlasTexture {
     }
 }
 
-impl From<Size<DevicePixels>> for etagere::Size {
-    fn from(size: Size<DevicePixels>) -> Self {
-        etagere::Size::new(size.width.into(), size.height.into())
-    }
+fn to_etagere_size(size: Size<DevicePixels>) -> etagere::Size {
+    etagere::Size::new(size.width.into(), size.height.into())
 }
 
-impl From<etagere::Point> for Point<DevicePixels> {
-    fn from(value: etagere::Point) -> Self {
-        Point {
-            x: DevicePixels::from(value.x),
-            y: DevicePixels::from(value.y),
-        }
+fn from_etagere_point(value: etagere::Point) -> Point<DevicePixels> {
+    Point {
+        x: DevicePixels::from(value.x),
+        y: DevicePixels::from(value.y),
     }
 }

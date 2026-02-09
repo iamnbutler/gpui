@@ -6,9 +6,11 @@
 //! including `wasm32`.
 
 mod color;
+mod geometry;
 mod shared_string;
 mod shared_uri;
 
 pub use color::*;
+pub use geometry::*;
 pub use shared_string::*;
 pub use shared_uri::*;

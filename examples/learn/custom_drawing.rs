@@ -10,7 +10,7 @@
 use gpui::{
     App, Application, Bounds, Colors, Context, Hsla, MouseButton, MouseDownEvent, MouseMoveEvent,
     MouseUpEvent, Path, PathBuilder, Pixels, Point, Render, Rgba, Window, WindowBounds,
-    WindowOptions, canvas, div, fill, point, prelude::*, px, rgb, size,
+    WindowOptions, canvas, centered_bounds, div, fill, point, prelude::*, px, rgb, size,
 };
 
 #[path = "../prelude.rs"]
@@ -464,7 +464,7 @@ fn section(
 
 fn main() {
     Application::new().run(|cx: &mut App| {
-        let bounds = Bounds::centered(None, size(px(550.), px(800.)), cx);
+        let bounds = centered_bounds(None, size(px(550.), px(800.)), cx);
         cx.open_window(
             WindowOptions {
                 window_bounds: Some(WindowBounds::Windowed(bounds)),

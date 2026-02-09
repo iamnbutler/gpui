@@ -3,8 +3,8 @@ use std::path::PathBuf;
 
 use anyhow::Result;
 use gpui::{
-    App, Application, AssetSource, Bounds, Context, SharedString, Window, WindowBounds,
-    WindowOptions, div, prelude::*, px, rgb, size, svg,
+    App, Application, AssetSource, Context, SharedString, Window, WindowBounds, WindowOptions,
+    centered_bounds, div, prelude::*, px, rgb, size, svg,
 };
 
 struct Assets {
@@ -73,7 +73,7 @@ fn main() {
             base: PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("examples"),
         })
         .run(|cx: &mut App| {
-            let bounds = Bounds::centered(None, size(px(300.0), px(300.0)), cx);
+            let bounds = centered_bounds(None, size(px(300.0), px(300.0)), cx);
             cx.open_window(
                 WindowOptions {
                     window_bounds: Some(WindowBounds::Windowed(bounds)),

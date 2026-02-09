@@ -1,5 +1,5 @@
 use crate::{
-    AbsoluteLength, App, Bounds, DefiniteLength, Edges, Length, Pixels, Point, Size, Style, Window,
+    AbsoluteLength, App, Bounds, DefiniteLength, Edges, Length, Pixels, Size, Style, Window,
     point, size,
 };
 use collections::{FxHashMap, FxHashSet};
@@ -7,7 +7,7 @@ use stacksafe::{StackSafe, stacksafe};
 use std::{fmt::Debug, ops::Range};
 use taffy::{
     TaffyTree, TraversePartialTree as _,
-    geometry::{Point as TaffyPoint, Rect as TaffyRect, Size as TaffySize},
+    geometry::{Rect as TaffyRect, Size as TaffySize},
     style::AvailableSpace as TaffyAvailableSpace,
     tree::NodeId,
 };
@@ -463,31 +463,6 @@ impl ToTaffy<taffy::style::LengthPercentage> for AbsoluteLength {
     }
 }
 
-impl<T, T2> From<TaffyPoint<T>> for Point<T2>
-where
-    T: Into<T2>,
-    T2: Clone + Debug + Default + PartialEq,
-{
-    fn from(point: TaffyPoint<T>) -> Point<T2> {
-        Point {
-            x: point.x.into(),
-            y: point.y.into(),
-        }
-    }
-}
-
-impl<T, T2> From<Point<T>> for TaffyPoint<T2>
-where
-    T: Into<T2> + Clone + Debug + Default + PartialEq,
-{
-    fn from(val: Point<T>) -> Self {
-        TaffyPoint {
-            x: val.x.into(),
-            y: val.y.into(),
-        }
-    }
-}
-
 impl<T, U> ToTaffy<TaffySize<U>> for Size<T>
 where
     T: ToTaffy<U> + Clone + Debug + Default + PartialEq,
@@ -510,31 +485,6 @@ where
             right: self.right.to_taffy(rem_size, scale_factor),
             bottom: self.bottom.to_taffy(rem_size, scale_factor),
             left: self.left.to_taffy(rem_size, scale_factor),
-        }
-    }
-}
-
-impl<T, U> From<TaffySize<T>> for Size<U>
-where
-    T: Into<U>,
-    U: Clone + Debug + Default + PartialEq,
-{
-    fn from(taffy_size: TaffySize<T>) -> Self {
-        Size {
-            width: taffy_size.width.into(),
-            height: taffy_size.height.into(),
-        }
-    }
-}
-
-impl<T, U> From<Size<T>> for TaffySize<U>
-where
-    T: Into<U> + Clone + Debug + Default + PartialEq,
-{
-    fn from(size: Size<T>) -> Self {
-        TaffySize {
-            width: size.width.into(),
-            height: size.height.into(),
         }
     }
 }
@@ -599,8 +549,9 @@ impl From<Pixels> for AvailableSpace {
     }
 }
 
-impl From<Size<Pixels>> for Size<AvailableSpace> {
-    fn from(size: Size<Pixels>) -> Self {
+impl AvailableSpace {
+    /// Convert a `Size<Pixels>` to `Size<AvailableSpace>` with definite dimensions.
+    pub fn from_size(size: Size<Pixels>) -> Size<AvailableSpace> {
         Size {
             width: AvailableSpace::Definite(size.width),
             height: AvailableSpace::Definite(size.height),

@@ -12,9 +12,9 @@ mod example_prelude;
 
 use example_prelude::init_example;
 use gpui::{
-    App, Application, Bounds, ClickEvent, Colors, Context, Entity, Half, Hsla, IntoElement,
-    MouseButton, MouseMoveEvent, Pixels, Point, Render, Window, WindowBounds, WindowOptions, div,
-    prelude::*, px, size,
+    App, Application, ClickEvent, Colors, Context, Entity, Half, Hsla, IntoElement, MouseButton,
+    MouseMoveEvent, Pixels, Point, Render, Window, WindowBounds, WindowOptions, centered_bounds,
+    div, prelude::*, px, size,
 };
 
 // ============================================================================
@@ -552,7 +552,7 @@ impl Render for InteractiveElementsExample {
 
 fn main() {
     Application::new().run(|cx: &mut App| {
-        let bounds = Bounds::centered(None, size(px(700.), px(650.)), cx);
+        let bounds = centered_bounds(None, size(px(700.), px(650.)), cx);
         cx.open_window(
             WindowOptions {
                 window_bounds: Some(WindowBounds::Windowed(bounds)),

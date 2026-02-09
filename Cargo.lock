@@ -2213,10 +2213,12 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "derive_more",
+ "gpui_refineable",
  "gpui_util",
  "schemars",
  "serde",
  "serde_json",
+ "taffy",
 ]
 
 [[package]]

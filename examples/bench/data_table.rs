@@ -3,7 +3,7 @@ use std::{ops::Range, rc::Rc, time::Duration};
 use gpui::{
     App, Application, Bounds, Context, MouseDownEvent, MouseMoveEvent, MouseUpEvent, Pixels, Point,
     Render, SharedString, UniformListScrollHandle, Window, WindowBounds, WindowOptions, canvas,
-    div, point, prelude::*, px, rgb, size, uniform_list,
+    centered_bounds, div, point, prelude::*, px, rgb, size, uniform_list,
 };
 
 const TOTAL_ITEMS: usize = 10000;
@@ -451,7 +451,7 @@ fn main() {
         cx.open_window(
             WindowOptions {
                 focus: true,
-                window_bounds: Some(WindowBounds::Windowed(Bounds::centered(
+                window_bounds: Some(WindowBounds::Windowed(centered_bounds(
                     None,
                     size(px(1280.0), px(1000.0)),
                     cx,

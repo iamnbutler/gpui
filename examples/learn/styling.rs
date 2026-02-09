@@ -7,8 +7,8 @@
 //! 3. Theming patterns - using Colors for consistent styling
 
 use gpui::{
-    App, Application, Bounds, Colors, Context, FocusHandle, Hsla, KeyBinding, Menu, MenuItem,
-    Render, Rgba, Window, WindowBounds, WindowOptions, actions, div, prelude::*, px, rgb, size,
+    App, Application, Colors, Context, FocusHandle, Hsla, KeyBinding, Menu, MenuItem, Render, Rgba,
+    Window, WindowBounds, WindowOptions, actions, centered_bounds, div, prelude::*, px, rgb, size,
 };
 
 actions!(styling_example, [Quit, Tab, TabPrev]);
@@ -498,7 +498,7 @@ fn main() {
         })
         .detach();
 
-        let bounds = Bounds::centered(None, size(px(550.), px(800.)), cx);
+        let bounds = centered_bounds(None, size(px(550.), px(800.)), cx);
         cx.open_window(
             WindowOptions {
                 window_bounds: Some(WindowBounds::Windowed(bounds)),

@@ -12,8 +12,8 @@ mod example_prelude;
 
 use example_prelude::init_example;
 use gpui::{
-    App, Application, Bounds, Colors, Context, Entity, IntoElement, Render, RenderOnce, Window,
-    WindowBounds, WindowOptions, div, prelude::*, px, size,
+    App, Application, Colors, Context, Entity, IntoElement, Render, RenderOnce, Window,
+    WindowBounds, WindowOptions, centered_bounds, div, prelude::*, px, size,
 };
 
 // ============================================================================
@@ -419,7 +419,7 @@ impl Render for CreatingComponentsExample {
 
 fn main() {
     Application::new().run(|cx: &mut App| {
-        let bounds = Bounds::centered(None, size(px(700.), px(400.)), cx);
+        let bounds = centered_bounds(None, size(px(700.), px(400.)), cx);
         cx.open_window(
             WindowOptions {
                 window_bounds: Some(WindowBounds::Windowed(bounds)),

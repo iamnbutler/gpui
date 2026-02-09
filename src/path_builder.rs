@@ -1,5 +1,5 @@
 use anyhow::Error;
-use etagere::euclid::{Point2D, Vector2D};
+use etagere::euclid::Vector2D;
 use lyon::geom::Angle;
 use lyon::math::{Vector, vector};
 use lyon::path::traits::SvgPathBuilder;
@@ -48,28 +48,16 @@ impl From<lyon::path::builder::WithSvg<lyon::path::BuilderImpl>> for PathBuilder
     }
 }
 
-impl From<lyon::math::Point> for Point<Pixels> {
-    fn from(p: lyon::math::Point) -> Self {
-        point(px(p.x), px(p.y))
-    }
+fn lyon_point(p: Point<Pixels>) -> lyon::math::Point {
+    lyon::math::point(p.x.0, p.y.0)
 }
 
-impl From<Point<Pixels>> for lyon::math::Point {
-    fn from(p: Point<Pixels>) -> Self {
-        lyon::math::point(p.x.0, p.y.0)
-    }
+fn to_vector(p: Point<Pixels>) -> Vector {
+    vector(p.x.0, p.y.0)
 }
 
-impl From<Point<Pixels>> for Vector {
-    fn from(p: Point<Pixels>) -> Self {
-        vector(p.x.0, p.y.0)
-    }
-}
-
-impl From<Point<Pixels>> for Point2D<f32, Pixels> {
-    fn from(p: Point<Pixels>) -> Self {
-        Point2D::new(p.x.0, p.y.0)
-    }
+fn from_lyon_point(p: lyon::math::Point) -> Point<Pixels> {
+    point(px(p.x), px(p.y))
 }
 
 impl Default for PathBuilder {
@@ -123,19 +111,19 @@ impl PathBuilder {
     /// Move the current point to the given point.
     #[inline]
     pub fn move_to(&mut self, to: Point<Pixels>) {
-        self.raw.move_to(to.into());
+        self.raw.move_to(lyon_point(to));
     }
 
     /// Draw a straight line from the current point to the given point.
     #[inline]
     pub fn line_to(&mut self, to: Point<Pixels>) {
-        self.raw.line_to(to.into());
+        self.raw.line_to(lyon_point(to));
     }
 
     /// Draw a curve from the current point to the given point, using the given control point.
     #[inline]
     pub fn curve_to(&mut self, to: Point<Pixels>, ctrl: Point<Pixels>) {
-        self.raw.quadratic_bezier_to(ctrl.into(), to.into());
+        self.raw.quadratic_bezier_to(lyon_point(ctrl), lyon_point(to));
     }
 
     /// Adds a cubic Bézier to the [`Path`] given its two control points
@@ -148,7 +136,7 @@ impl PathBuilder {
         control_b: Point<Pixels>,
     ) {
         self.raw
-            .cubic_bezier_to(control_a.into(), control_b.into(), to.into());
+            .cubic_bezier_to(lyon_point(control_a), lyon_point(control_b), lyon_point(to));
     }
 
     /// Adds an elliptical arc.
@@ -161,10 +149,10 @@ impl PathBuilder {
         to: Point<Pixels>,
     ) {
         self.raw.arc_to(
-            radii.into(),
-            Angle::degrees(x_rotation.into()),
+            to_vector(radii),
+            Angle::degrees(x_rotation.0),
             ArcFlags { large_arc, sweep },
-            to.into(),
+            lyon_point(to),
         );
     }
 
@@ -178,16 +166,16 @@ impl PathBuilder {
         to: Point<Pixels>,
     ) {
         self.raw.relative_arc_to(
-            radii.into(),
-            Angle::degrees(x_rotation.into()),
+            to_vector(radii),
+            Angle::degrees(x_rotation.0),
             ArcFlags { large_arc, sweep },
-            to.into(),
+            to_vector(to),
         );
     }
 
     /// Adds a polygon.
     pub fn add_polygon(&mut self, points: &[Point<Pixels>], closed: bool) {
-        let points = points.iter().copied().map(|p| p.into()).collect::<Vec<_>>();
+        let points = points.iter().copied().map(lyon_point).collect::<Vec<_>>();
         self.raw.add_polygon(Polygon {
             points: points.as_ref(),
             closed,
@@ -326,7 +314,7 @@ impl PathBuilder {
 
         let first_point = buf.vertices[0];
 
-        let mut path = Path::new(first_point.into());
+        let mut path = Path::new(from_lyon_point(first_point));
         for i in 0..buf.indices.len() / 3 {
             let i0 = buf.indices[i * 3] as usize;
             let i1 = buf.indices[i * 3 + 1] as usize;
@@ -337,7 +325,7 @@ impl PathBuilder {
             let v2 = buf.vertices[i2];
 
             path.push_triangle(
-                (v0.into(), v1.into(), v2.into()),
+                (from_lyon_point(v0), from_lyon_point(v1), from_lyon_point(v2)),
                 (point(0., 1.), point(0., 1.), point(0., 1.)),
             );
         }

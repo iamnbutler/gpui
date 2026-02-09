@@ -1190,8 +1190,8 @@ mod test {
     #[gpui::test]
     fn test_reset_after_paint_before_scroll(cx: &mut TestAppContext) {
         use crate::{
-            AppContext, Context, Element, IntoElement, ListState, Render, Styled, Window, div,
-            list, point, px, size,
+            AppContext, AvailableSpace, Context, Element, IntoElement, ListState, Render, Styled,
+            Window, div, list, point, px, size,
         };
 
         let cx = cx.add_empty_window();
@@ -1216,7 +1216,7 @@ mod test {
         }
 
         // Paint
-        cx.draw(point(px(0.), px(0.)), size(px(100.), px(20.)), |_, cx| {
+        cx.draw(point(px(0.), px(0.)), AvailableSpace::from_size(size(px(100.), px(20.))), |_, cx| {
             cx.new(|_| TestView(state.clone()))
         });
 
@@ -1238,8 +1238,8 @@ mod test {
     #[gpui::test]
     fn test_scroll_by_positive_and_negative_distance(cx: &mut TestAppContext) {
         use crate::{
-            AppContext, Context, Element, IntoElement, ListState, Render, Styled, Window, div,
-            list, point, px, size,
+            AppContext, AvailableSpace, Context, Element, IntoElement, ListState, Render, Styled,
+            Window, div, list, point, px, size,
         };
 
         let cx = cx.add_empty_window();
@@ -1258,7 +1258,7 @@ mod test {
         }
 
         // Paint
-        cx.draw(point(px(0.), px(0.)), size(px(100.), px(100.)), |_, cx| {
+        cx.draw(point(px(0.), px(0.)), AvailableSpace::from_size(size(px(100.), px(100.))), |_, cx| {
             cx.new(|_| TestView(state.clone()))
         });
 

@@ -1,6 +1,6 @@
 use gpui::{
-    Application, Background, Bounds, ColorSpace, Context, Path, PathBuilder, Pixels, Render,
-    TitlebarOptions, Window, WindowBounds, WindowOptions, canvas, div, linear_color_stop,
+    Application, Background, ColorSpace, Context, Path, PathBuilder, Pixels, Render, TitlebarOptions,
+    Window, WindowBounds, WindowOptions, canvas, centered_bounds, div, linear_color_stop,
     linear_gradient, point, prelude::*, px, rgb, size,
 };
 
@@ -77,7 +77,7 @@ fn main() {
                     ..Default::default()
                 }),
                 focus: true,
-                window_bounds: Some(WindowBounds::Windowed(Bounds::centered(
+                window_bounds: Some(WindowBounds::Windowed(centered_bounds(
                     None,
                     size(DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT),
                     cx,

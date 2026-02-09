@@ -160,7 +160,7 @@ impl MetalAtlasState {
                 index: index.unwrap_or(texture_list.textures.len()) as u32,
                 kind,
             },
-            allocator: etagere::BucketedAtlasAllocator::new(size.into()),
+            allocator: etagere::BucketedAtlasAllocator::new(to_etagere_size(size)),
             metal_texture: AssertSend(metal_texture),
             live_atlas_keys: 0,
         };
@@ -195,12 +195,12 @@ struct MetalAtlasTexture {
 
 impl MetalAtlasTexture {
     fn allocate(&mut self, size: Size<DevicePixels>) -> Option<AtlasTile> {
-        let allocation = self.allocator.allocate(size.into())?;
+        let allocation = self.allocator.allocate(to_etagere_size(size))?;
         let tile = AtlasTile {
             texture_id: self.id,
             tile_id: allocation.id.into(),
             bounds: Bounds {
-                origin: allocation.rectangle.min.into(),
+                origin: from_etagere_point(allocation.rectangle.min),
                 size,
             },
             padding: 0,
@@ -242,38 +242,17 @@ impl MetalAtlasTexture {
     }
 }
 
-impl From<Size<DevicePixels>> for etagere::Size {
-    fn from(size: Size<DevicePixels>) -> Self {
-        etagere::Size::new(size.width.into(), size.height.into())
+fn to_etagere_size(size: Size<DevicePixels>) -> etagere::Size {
+    etagere::Size::new(size.width.into(), size.height.into())
+}
+
+fn from_etagere_point(value: etagere::Point) -> Point<DevicePixels> {
+    Point {
+        x: DevicePixels::from(value.x),
+        y: DevicePixels::from(value.y),
     }
 }
 
-impl From<etagere::Point> for Point<DevicePixels> {
-    fn from(value: etagere::Point) -> Self {
-        Point {
-            x: DevicePixels::from(value.x),
-            y: DevicePixels::from(value.y),
-        }
-    }
-}
-
-impl From<etagere::Size> for Size<DevicePixels> {
-    fn from(size: etagere::Size) -> Self {
-        Size {
-            width: DevicePixels::from(size.width),
-            height: DevicePixels::from(size.height),
-        }
-    }
-}
-
-impl From<etagere::Rectangle> for Bounds<DevicePixels> {
-    fn from(rectangle: etagere::Rectangle) -> Self {
-        Bounds {
-            origin: rectangle.min.into(),
-            size: rectangle.size().into(),
-        }
-    }
-}
 
 #[derive(Deref, DerefMut)]
 struct AssertSend<T>(T);

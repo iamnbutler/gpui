@@ -13,8 +13,8 @@ mod example_prelude;
 use std::time::Duration;
 
 use gpui::{
-    App, Application, Bounds, Colors, Context, Entity, Render, Task, Window, WindowBounds,
-    WindowOptions, div, prelude::*, px, size,
+    App, Application, Colors, Context, Entity, Render, Task, Window, WindowBounds, WindowOptions,
+    centered_bounds, div, prelude::*, px, size,
 };
 
 // Example 1: Simple Foreground Task
@@ -546,7 +546,7 @@ fn progress_bar(colors: &Colors, progress: u32) -> impl IntoElement {
 
 fn main() {
     Application::new().run(|cx: &mut App| {
-        let bounds = Bounds::centered(None, size(px(550.), px(850.)), cx);
+        let bounds = centered_bounds(None, size(px(550.), px(850.)), cx);
         cx.open_window(
             WindowOptions {
                 window_bounds: Some(WindowBounds::Windowed(bounds)),

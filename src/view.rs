@@ -1,5 +1,5 @@
 use crate::{
-    AnyElement, AnyEntity, AnyWeakEntity, App, Bounds, ContentMask, Context, Element, ElementId,
+    AnyElement, AnyEntity, AnyWeakEntity, App, AvailableSpace, Bounds, ContentMask, Context, Element, ElementId,
     Entity, EntityId, GlobalElementId, InspectorElementId, IntoElement, LayoutId, PaintIndex,
     Pixels, PrepaintStateIndex, Render, Style, StyleRefinement, TextStyle, WeakEntity,
 };
@@ -226,7 +226,7 @@ impl Element for AnyView {
                     let prepaint_start = window.prepaint_index();
                     let (mut element, accessed_entities) = cx.detect_accessed_entities(|cx| {
                         let mut element = (self.render)(self, window, cx);
-                        element.layout_as_root(bounds.size.into(), window, cx);
+                        element.layout_as_root(AvailableSpace::from_size(bounds.size), window, cx);
                         element.prepaint_at(bounds.origin, window, cx);
                         element
                     });

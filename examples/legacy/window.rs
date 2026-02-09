@@ -1,6 +1,6 @@
 use gpui::{
-    App, Application, Bounds, Context, KeyBinding, PromptButton, PromptLevel, Timer, Window,
-    WindowBounds, WindowKind, WindowOptions, actions, div, prelude::*, px, rgb, size,
+    App, Application, Context, KeyBinding, PromptButton, PromptLevel, Timer, Window, WindowBounds,
+    WindowKind, WindowOptions, actions, centered_bounds, div, prelude::*, px, rgb, size,
 };
 
 struct SubWindow {
@@ -66,7 +66,7 @@ struct WindowDemo {}
 impl Render for WindowDemo {
     fn render(&mut self, _window: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
         let window_bounds =
-            WindowBounds::Windowed(Bounds::centered(None, size(px(300.0), px(300.0)), cx));
+            WindowBounds::Windowed(centered_bounds(None, size(px(300.0), px(300.0)), cx));
 
         div()
             .p_4()
@@ -242,7 +242,7 @@ actions!(window, [Quit]);
 
 fn main() {
     Application::new().run(|cx: &mut App| {
-        let bounds = Bounds::centered(None, size(px(800.0), px(600.0)), cx);
+        let bounds = centered_bounds(None, size(px(800.0), px(600.0)), cx);
 
         cx.open_window(
             WindowOptions {

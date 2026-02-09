@@ -1,6 +1,6 @@
 use gpui::{
-    App, Application, Bounds, Context, FocusHandle, KeyBinding, Window, WindowBounds,
-    WindowOptions, actions, div, prelude::*, px, rgb, size,
+    App, Application, Context, FocusHandle, KeyBinding, Window, WindowBounds, WindowOptions,
+    actions, centered_bounds, div, prelude::*, px, rgb, size,
 };
 
 actions!(example, [CloseWindow]);
@@ -36,7 +36,7 @@ impl Render for ExampleWindow {
 
 fn main() {
     Application::new().run(|cx: &mut App| {
-        let mut bounds = Bounds::centered(None, size(px(500.), px(500.0)), cx);
+        let mut bounds = centered_bounds(None, size(px(500.), px(500.0)), cx);
 
         cx.bind_keys([KeyBinding::new("cmd-w", CloseWindow, None)]);
         cx.on_window_closed(|cx| {
