@@ -87,7 +87,7 @@ impl Render for ImageShowcase {
                     .items_center()
                     .gap_8()
                     .child(img(
-                        "https://github.com/zed-industries/zed/actions/workflows/ci.yml/badge.svg",
+                        "https://picsum.photos/seed/gpui/200/40",
                     ))
                     .child(
                         div()

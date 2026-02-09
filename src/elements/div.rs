@@ -2239,7 +2239,8 @@ impl Interactivity {
                                 // if the hitbox is not being hovered.
                                 // This avoids dragging elements that changed their position
                                 // immediately after being clicked.
-                                // See https://github.com/zed-industries/zed/issues/24600 for more details
+                                // This prevents elements from being inadvertently dragged when they
+                                // reposition themselves in response to a click.
                                 pending_mouse_down.take();
                                 window.refresh();
                             }
