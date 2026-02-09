@@ -4,3 +4,9 @@
 //! and their dependent types that are shared between native and web backends.
 //! It has no native OS dependencies and is designed to compile for any target
 //! including `wasm32`.
+
+mod color;
+mod shared_string;
+
+pub use color::*;
+pub use shared_string::*;

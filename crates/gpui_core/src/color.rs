@@ -23,7 +23,7 @@ pub fn rgba(hex: u32) -> Rgba {
 }
 
 /// Swap from RGBA with premultiplied alpha to BGRA
-pub(crate) fn swap_rgba_pa_to_bgra(color: &mut [u8]) {
+pub fn swap_rgba_pa_to_bgra(color: &mut [u8]) {
     color.swap(0, 2);
     if color[3] > 0 {
         let a = color[3] as f32 / 255.;
@@ -528,7 +528,7 @@ impl Hsla {
     ///
     /// Example:
     /// ```
-    /// let color = gpui::red();
+    /// let color = gpui_core::red();
     /// let faded_color = color.opacity(0.5);
     /// assert_eq!(faded_color.a, 0.5);
     /// ```
@@ -537,7 +537,7 @@ impl Hsla {
     ///
     /// Example:
     /// ```
-    /// use gpui::hsla;
+    /// use gpui_core::hsla;
     /// let color = hsla(0.7, 1.0, 0.5, 0.7); // A saturated blue
     /// let faded_color = color.opacity(0.16);
     /// assert!((faded_color.a - 0.112).abs() < 1e-6);
@@ -560,7 +560,7 @@ impl Hsla {
     ///
     /// Example:
     /// ```
-    /// let color = gpui::red();
+    /// let color = gpui_core::red();
     /// let red_color = color.alpha(0.25);
     /// assert_eq!(red_color.a, 0.25);
     /// ```
@@ -569,7 +569,7 @@ impl Hsla {
     ///
     /// Example:
     /// ```
-    /// use gpui::hsla;
+    /// use gpui_core::hsla;
     /// let color = hsla(0.7, 1.0, 0.5, 0.7); // A saturated blue
     /// let faded_color = color.alpha(0.25);
     /// assert_eq!(faded_color.a, 0.25);
@@ -654,9 +654,12 @@ impl<'de> Deserialize<'de> for Hsla {
 
 #[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize, JsonSchema)]
 #[repr(C)]
-pub(crate) enum BackgroundTag {
+pub enum BackgroundTag {
+    /// Solid color
     Solid = 0,
+    /// Linear gradient
     LinearGradient = 1,
+    /// Slash pattern
     PatternSlash = 2,
 }
 
@@ -688,11 +691,16 @@ impl Display for ColorSpace {
 #[derive(Clone, Copy, PartialEq, Serialize, Deserialize, JsonSchema)]
 #[repr(C)]
 pub struct Background {
-    pub(crate) tag: BackgroundTag,
-    pub(crate) color_space: ColorSpace,
-    pub(crate) solid: Hsla,
-    pub(crate) gradient_angle_or_pattern_height: f32,
-    pub(crate) colors: [LinearColorStop; 2],
+    /// The type of background.
+    pub tag: BackgroundTag,
+    /// The color space for interpolation.
+    pub color_space: ColorSpace,
+    /// The solid color (used for solid backgrounds and pattern base color).
+    pub solid: Hsla,
+    /// The gradient angle in degrees, or pattern height for slash patterns.
+    pub gradient_angle_or_pattern_height: f32,
+    /// The gradient color stops.
+    pub colors: [LinearColorStop; 2],
     /// Padding for alignment for repr(C) layout.
     pad: u32,
 }
