@@ -792,7 +792,7 @@ impl Element for InteractiveText {
                             move |event: &MouseUpEvent, phase, window: &mut Window, cx| {
                                 if phase == DispatchPhase::Bubble && hitbox.is_hovered(window) {
                                     if let Ok(mouse_up_index) =
-                                        text_layout.index_for_position(event.position)
+                                        text_layout.index_for_position(event.position.into())
                                     {
                                         click_listener(
                                             &clickable_ranges,
@@ -816,7 +816,7 @@ impl Element for InteractiveText {
                             if phase == DispatchPhase::Bubble
                                 && hitbox.is_hovered(window)
                                 && let Ok(mouse_down_index) =
-                                    text_layout.index_for_position(event.position)
+                                    text_layout.index_for_position(event.position.into())
                             {
                                 mouse_down.set(Some(mouse_down_index));
                                 window.refresh();
@@ -833,7 +833,7 @@ impl Element for InteractiveText {
                     move |event: &MouseMoveEvent, phase, window, cx| {
                         if phase == DispatchPhase::Bubble && hitbox.is_hovered(window) {
                             let current = hovered_index.get();
-                            let updated = text_layout.index_for_position(event.position).ok();
+                            let updated = text_layout.index_for_position(event.position.into()).ok();
                             if current != updated {
                                 hovered_index.set(updated);
                                 if let Some(hover_listener) = hover_listener.as_ref() {

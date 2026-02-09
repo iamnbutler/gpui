@@ -1,7 +1,7 @@
 use gpui::{
-    Application, Background, Bounds, ColorSpace, Context, Path, PathBuilder, Pixels, Render,
-    TitlebarOptions, Window, WindowBounds, WindowOptions, canvas, div, linear_color_stop,
-    linear_gradient, point, prelude::*, px, rgb, size,
+    Application, Background, Bounds, ColorSpace, Context, Path, PathBuilder, Pixels, Point2, Px,
+    Render, TitlebarOptions, Window, WindowBounds, WindowOptions, canvas, div, linear_color_stop,
+    linear_gradient, prelude::*, px, rgb, size,
 };
 
 const DEFAULT_WINDOW_WIDTH: Pixels = px(1024.0);
@@ -20,17 +20,17 @@ impl PaintingViewer {
         for _ in 0..2000 {
             // draw a ⭐
             let mut builder = PathBuilder::fill();
-            builder.move_to(point(px(350.), px(100.)));
-            builder.line_to(point(px(370.), px(160.)));
-            builder.line_to(point(px(430.), px(160.)));
-            builder.line_to(point(px(380.), px(200.)));
-            builder.line_to(point(px(400.), px(260.)));
-            builder.line_to(point(px(350.), px(220.)));
-            builder.line_to(point(px(300.), px(260.)));
-            builder.line_to(point(px(320.), px(200.)));
-            builder.line_to(point(px(270.), px(160.)));
-            builder.line_to(point(px(330.), px(160.)));
-            builder.line_to(point(px(350.), px(100.)));
+            builder.move_to(Point2::<Px>::new(350., 100.));
+            builder.line_to(Point2::<Px>::new(370., 160.));
+            builder.line_to(Point2::<Px>::new(430., 160.));
+            builder.line_to(Point2::<Px>::new(380., 200.));
+            builder.line_to(Point2::<Px>::new(400., 260.));
+            builder.line_to(Point2::<Px>::new(350., 220.));
+            builder.line_to(Point2::<Px>::new(300., 260.));
+            builder.line_to(Point2::<Px>::new(320., 200.));
+            builder.line_to(Point2::<Px>::new(270., 160.));
+            builder.line_to(Point2::<Px>::new(330., 160.));
+            builder.line_to(Point2::<Px>::new(350., 100.));
             let path = builder.build().unwrap();
             lines.push((
                 path,

@@ -1,6 +1,6 @@
 use crate::{
-    Bounds, Capslock, Context, Empty, IntoElement, Keystroke, Modifiers, Pixels, Point, Render,
-    Window, point, seal::Sealed,
+    Bounds, Capslock, Context, Empty, IntoElement, Keystroke, Modifiers, Pixels, Point, Point2, Px,
+    Render, Window, point, seal::Sealed,
 };
 use smallvec::SmallVec;
 use std::{any::Any, fmt::Debug, ops::Deref, path::PathBuf};
@@ -99,7 +99,7 @@ pub struct MouseDownEvent {
     pub button: MouseButton,
 
     /// The position of the mouse on the window.
-    pub position: Point<Pixels>,
+    pub position: Point2<Px>,
 
     /// The modifiers that were held down when the mouse was pressed.
     pub modifiers: Modifiers,
@@ -136,7 +136,7 @@ pub struct MouseUpEvent {
     pub button: MouseButton,
 
     /// The position of the mouse on the window.
-    pub position: Point<Pixels>,
+    pub position: Point2<Px>,
 
     /// The modifiers that were held down when the mouse was released.
     pub modifiers: Modifiers,
@@ -219,9 +219,9 @@ impl ClickEvent {
     ///
     /// `Keyboard`: The bottom left corner of the clicked hitbox
     /// `Mouse`: The position of the mouse when the button was released.
-    pub fn position(&self) -> Point<Pixels> {
+    pub fn position(&self) -> Point2<Px> {
         match self {
-            ClickEvent::Keyboard(event) => event.bounds.bottom_left(),
+            ClickEvent::Keyboard(event) => event.bounds.bottom_left().into(),
             ClickEvent::Mouse(event) => event.up.position,
         }
     }
@@ -230,7 +230,7 @@ impl ClickEvent {
     ///
     /// `Keyboard`: None
     /// `Mouse`: The position of the mouse when the button was released.
-    pub fn mouse_position(&self) -> Option<Point<Pixels>> {
+    pub fn mouse_position(&self) -> Option<Point2<Px>> {
         match self {
             ClickEvent::Keyboard(_) => None,
             ClickEvent::Mouse(event) => Some(event.up.position),
@@ -349,7 +349,7 @@ pub enum NavigationDirection {
 #[derive(Clone, Debug, Default)]
 pub struct MouseMoveEvent {
     /// The position of the mouse on the window.
-    pub position: Point<Pixels>,
+    pub position: Point2<Px>,
 
     /// The mouse button that was pressed, if any.
     pub pressed_button: Option<MouseButton>,
@@ -377,7 +377,7 @@ impl MouseMoveEvent {
 #[derive(Clone, Debug, Default)]
 pub struct ScrollWheelEvent {
     /// The position of the mouse on the window.
-    pub position: Point<Pixels>,
+    pub position: Point2<Px>,
 
     /// The change in scroll wheel position for this event.
     pub delta: ScrollDelta,
@@ -409,7 +409,7 @@ impl Deref for ScrollWheelEvent {
 #[derive(Clone, Copy, Debug)]
 pub enum ScrollDelta {
     /// An exact scroll delta in pixels.
-    Pixels(Point<Pixels>),
+    Pixels(Point2<Px>),
     /// An inexact scroll delta in lines.
     Lines(Point<f32>),
 }
@@ -430,10 +430,12 @@ impl ScrollDelta {
     }
 
     /// Converts this scroll event into exact pixels.
-    pub fn pixel_delta(&self, line_height: Pixels) -> Point<Pixels> {
+    pub fn pixel_delta(&self, line_height: Pixels) -> Point2<Px> {
         match self {
             ScrollDelta::Pixels(delta) => *delta,
-            ScrollDelta::Lines(delta) => point(line_height * delta.x, line_height * delta.y),
+            ScrollDelta::Lines(delta) => {
+                Point2::new(line_height.0 * delta.x, line_height.0 * delta.y)
+            }
         }
     }
 
@@ -456,7 +458,7 @@ impl ScrollDelta {
                     b.y
                 };
 
-                ScrollDelta::Pixels(point(x, y))
+                ScrollDelta::Pixels(Point2::new(x, y))
             }
 
             (ScrollDelta::Lines(a), ScrollDelta::Lines(b)) => {
@@ -484,7 +486,7 @@ impl ScrollDelta {
 #[derive(Clone, Debug, Default)]
 pub struct MouseExitEvent {
     /// The position of the mouse relative to the window.
-    pub position: Point<Pixels>,
+    pub position: Point2<Px>,
     /// The mouse button that was pressed, if any.
     pub pressed_button: Option<MouseButton>,
     /// The modifiers that were held down when the mouse was moved.
@@ -532,19 +534,19 @@ pub enum FileDropEvent {
     /// The files have entered the window.
     Entered {
         /// The position of the mouse relative to the window.
-        position: Point<Pixels>,
+        position: Point2<Px>,
         /// The paths of the files that are being dragged.
         paths: ExternalPaths,
     },
     /// The files are being dragged over the window
     Pending {
         /// The position of the mouse relative to the window.
-        position: Point<Pixels>,
+        position: Point2<Px>,
     },
     /// The files have been dropped onto the window.
     Submit {
         /// The position of the mouse relative to the window.
-        position: Point<Pixels>,
+        position: Point2<Px>,
     },
     /// The user has stopped dragging the files over the window.
     Exited,

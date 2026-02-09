@@ -96,7 +96,8 @@ ctor = "0.4.0"
 derive_more = "0.99.17"
 etagere = "0.2"
 futures = "0.3"
-glam = "0.29"
+glamour = { version = "0.18", features = ["serde"] }
+glam = "0.30"
 gpui_macros = { package = "gpui-macros", version = "0.2.2" }
 http_client = { package = "gpui_http_client", version = "0.2.2" }
 image = "0.25.1"

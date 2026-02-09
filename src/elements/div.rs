@@ -1973,7 +1973,7 @@ impl Interactivity {
                             let hitbox = hitbox.clone();
                             let location = self.source_location.unwrap();
                             move |e: &crate::MouseDownEvent, phase, window, cx| {
-                                if text_bounds.contains(&e.position)
+                                if text_bounds.contains(&e.position.into())
                                     && phase.capture()
                                     && hitbox.is_hovered(window)
                                 {
@@ -2169,11 +2169,12 @@ impl Interactivity {
                         let mut pending_mouse_down = pending_mouse_down.borrow_mut();
                         if let Some(mouse_down) = pending_mouse_down.clone()
                             && !cx.has_active_drag()
-                            && (event.position - mouse_down.position).magnitude() > DRAG_THRESHOLD
+                            && (event.position - mouse_down.position).length() as f64 > DRAG_THRESHOLD
                             && let Some((drag_value, drag_listener)) = drag_listener.take()
                         {
                             *clicked_state.borrow_mut() = ElementClickedState::default();
-                            let cursor_offset = event.position - hitbox.origin;
+                            let event_position: Point<Pixels> = event.position.into();
+                            let cursor_offset = event_position.relative_to(&hitbox.origin);
                             let drag =
                                 (drag_listener)(drag_value.as_ref(), cursor_offset, window, cx);
                             cx.active_drag = Some(AnyDrag {
@@ -2431,7 +2432,7 @@ impl Interactivity {
                 if phase == DispatchPhase::Bubble && hitbox.should_handle_scroll(window) {
                     let mut scroll_offset = scroll_offset.borrow_mut();
                     let old_scroll_offset = *scroll_offset;
-                    let delta = event.delta.pixel_delta(line_height);
+                    let delta: Point<Pixels> = event.delta.pixel_delta(line_height).into();
 
                     let mut delta_x = Pixels::ZERO;
                     if overflow.x == Overflow::Scroll {

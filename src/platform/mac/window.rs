@@ -3,7 +3,7 @@ use crate::{
     AnyWindowHandle, Bounds, Capslock, DisplayLink, ExternalPaths, FileDropEvent,
     ForegroundExecutor, KeyDownEvent, Keystroke, Modifiers, ModifiersChangedEvent, MouseButton,
     MouseDownEvent, MouseMoveEvent, MouseUpEvent, Pixels, PlatformAtlas, PlatformDisplay,
-    PlatformInput, PlatformWindow, Point, PromptButton, PromptLevel, RequestFrameOptions,
+    PlatformInput, PlatformWindow, Point, Point2, PromptButton, PromptLevel, Px, RequestFrameOptions,
     SharedString, Size, SystemWindowTab, Timer, WindowAppearance, WindowBackgroundAppearance,
     WindowBounds, WindowControlArea, WindowKind, WindowParams, dispatch_get_main_queue,
     dispatch_sys::dispatch_async_f, platform::PlatformInputHandler, point, px, size,
@@ -2484,9 +2484,9 @@ fn send_new_event(window_state_lock: &Mutex<MacWindowState>, e: PlatformInput) -
     }
 }
 
-fn drag_event_position(window_state: &Mutex<MacWindowState>, dragging_info: id) -> Point<Pixels> {
+fn drag_event_position(window_state: &Mutex<MacWindowState>, dragging_info: id) -> Point2<Px> {
     let drag_location: NSPoint = unsafe { msg_send![dragging_info, draggingLocation] };
-    convert_mouse_position(drag_location, window_state.lock().content_size().height)
+    convert_mouse_position(drag_location, window_state.lock().content_size().height).into()
 }
 
 fn with_input_handler<F, R>(window: &Object, f: F) -> Option<R>

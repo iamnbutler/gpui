@@ -218,15 +218,15 @@ impl Render for GradientViewer {
                     let horizontal_offset = height;
                     let vertical_offset = px(30.);
                     let mut builder = gpui::PathBuilder::fill();
-                    builder.move_to(square_bounds.bottom_left());
+                    builder.move_to(square_bounds.bottom_left().into());
                     builder
-                        .line_to(square_bounds.origin + point(horizontal_offset, vertical_offset));
+                        .line_to((square_bounds.origin + point(horizontal_offset, vertical_offset)).into());
                     builder.line_to(
-                        square_bounds.top_right() + point(-horizontal_offset, vertical_offset),
+                        (square_bounds.top_right() + point(-horizontal_offset, vertical_offset)).into(),
                     );
 
-                    builder.line_to(square_bounds.bottom_right());
-                    builder.line_to(square_bounds.bottom_left());
+                    builder.line_to(square_bounds.bottom_right().into());
+                    builder.line_to(square_bounds.bottom_left().into());
                     let path = builder.build().unwrap();
                     window.paint_path(
                         path,

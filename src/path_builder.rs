@@ -11,7 +11,7 @@ use lyon::tessellation::{
 pub use lyon::math::Transform;
 pub use lyon::tessellation::{FillOptions, FillRule, StrokeOptions};
 
-use crate::{Path, Pixels, Point, point, px};
+use crate::{Path, Pixels, Point, Point2, Px, point, px};
 
 /// Style of the PathBuilder
 pub enum PathStyle {
@@ -48,6 +48,15 @@ impl From<lyon::path::builder::WithSvg<lyon::path::BuilderImpl>> for PathBuilder
     }
 }
 
+fn to_lyon_point(p: Point2<Px>) -> lyon::math::Point {
+    lyon::math::point(p.x, p.y)
+}
+
+fn _from_lyon_point(p: lyon::math::Point) -> Point2<Px> {
+    Point2::new(p.x, p.y)
+}
+
+// Keep legacy conversions for callers still using Point<Pixels>
 impl From<lyon::math::Point> for Point<Pixels> {
     fn from(p: lyon::math::Point) -> Self {
         point(px(p.x), px(p.y))
@@ -122,20 +131,21 @@ impl PathBuilder {
 
     /// Move the current point to the given point.
     #[inline]
-    pub fn move_to(&mut self, to: Point<Pixels>) {
-        self.raw.move_to(to.into());
+    pub fn move_to(&mut self, to: Point2<Px>) {
+        self.raw.move_to(to_lyon_point(to));
     }
 
     /// Draw a straight line from the current point to the given point.
     #[inline]
-    pub fn line_to(&mut self, to: Point<Pixels>) {
-        self.raw.line_to(to.into());
+    pub fn line_to(&mut self, to: Point2<Px>) {
+        self.raw.line_to(to_lyon_point(to));
     }
 
     /// Draw a curve from the current point to the given point, using the given control point.
     #[inline]
-    pub fn curve_to(&mut self, to: Point<Pixels>, ctrl: Point<Pixels>) {
-        self.raw.quadratic_bezier_to(ctrl.into(), to.into());
+    pub fn curve_to(&mut self, to: Point2<Px>, ctrl: Point2<Px>) {
+        self.raw
+            .quadratic_bezier_to(to_lyon_point(ctrl), to_lyon_point(to));
     }
 
     /// Adds a cubic Bézier to the [`Path`] given its two control points
@@ -143,51 +153,58 @@ impl PathBuilder {
     #[inline]
     pub fn cubic_bezier_to(
         &mut self,
-        to: Point<Pixels>,
-        control_a: Point<Pixels>,
-        control_b: Point<Pixels>,
+        to: Point2<Px>,
+        control_a: Point2<Px>,
+        control_b: Point2<Px>,
     ) {
-        self.raw
-            .cubic_bezier_to(control_a.into(), control_b.into(), to.into());
+        self.raw.cubic_bezier_to(
+            to_lyon_point(control_a),
+            to_lyon_point(control_b),
+            to_lyon_point(to),
+        );
     }
 
     /// Adds an elliptical arc.
     pub fn arc_to(
         &mut self,
-        radii: Point<Pixels>,
-        x_rotation: Pixels,
+        radii: Point2<Px>,
+        x_rotation: f32,
         large_arc: bool,
         sweep: bool,
-        to: Point<Pixels>,
+        to: Point2<Px>,
     ) {
         self.raw.arc_to(
-            radii.into(),
-            Angle::degrees(x_rotation.into()),
+            vector(radii.x, radii.y),
+            Angle::degrees(x_rotation),
             ArcFlags { large_arc, sweep },
-            to.into(),
+            to_lyon_point(to),
         );
     }
 
     /// Equivalent to `arc_to` in relative coordinates.
     pub fn relative_arc_to(
         &mut self,
-        radii: Point<Pixels>,
-        x_rotation: Pixels,
+        radii: Point2<Px>,
+        x_rotation: f32,
         large_arc: bool,
         sweep: bool,
-        to: Point<Pixels>,
+        to: Point2<Px>,
     ) {
         self.raw.relative_arc_to(
-            radii.into(),
-            Angle::degrees(x_rotation.into()),
+            vector(radii.x, radii.y),
+            Angle::degrees(x_rotation),
             ArcFlags { large_arc, sweep },
-            to.into(),
+            vector(to.x, to.y),
         );
     }
 
     /// Adds a polygon.
-    pub fn add_polygon(&mut self, points: &[Point<Pixels>], closed: bool) {
-        let points = points.iter().copied().map(|p| p.into()).collect::<Vec<_>>();
+    pub fn add_polygon(&mut self, points: &[Point2<Px>], closed: bool) {
+        let points = points
+            .iter()
+            .copied()
+            .map(to_lyon_point)
+            .collect::<Vec<_>>();
         self.raw.add_polygon(Polygon {
             points: points.as_ref(),
             closed,
@@ -208,11 +225,11 @@ impl PathBuilder {
 
     /// Applies a translation to the path.
     #[inline]
-    pub fn translate(&mut self, to: Point<Pixels>) {
+    pub fn translate(&mut self, to: Point2<Px>) {
         if let Some(transform) = self.transform {
-            self.transform = Some(transform.then_translate(Vector2D::new(to.x.0, to.y.0)));
+            self.transform = Some(transform.then_translate(Vector2D::new(to.x, to.y)));
         } else {
-            self.transform = Some(Transform::translation(to.x.0, to.y.0))
+            self.transform = Some(Transform::translation(to.x, to.y))
         }
     }
 
@@ -326,7 +343,7 @@ impl PathBuilder {
 
         let first_point = buf.vertices[0];
 
-        let mut path = Path::new(first_point.into());
+        let mut path: Path<Pixels> = Path::new(first_point.into());
         for i in 0..buf.indices.len() / 3 {
             let i0 = buf.indices[i * 3] as usize;
             let i1 = buf.indices[i * 3 + 1] as usize;

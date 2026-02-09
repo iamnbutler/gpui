@@ -3691,17 +3691,17 @@ impl Window {
             // Track the mouse position with our own state, since accessing the platform
             // API for the mouse position can only occur on the main thread.
             PlatformInput::MouseMove(mouse_move) => {
-                self.mouse_position = mouse_move.position;
+                self.mouse_position = mouse_move.position.into();
                 self.modifiers = mouse_move.modifiers;
                 PlatformInput::MouseMove(mouse_move)
             }
             PlatformInput::MouseDown(mouse_down) => {
-                self.mouse_position = mouse_down.position;
+                self.mouse_position = mouse_down.position.into();
                 self.modifiers = mouse_down.modifiers;
                 PlatformInput::MouseDown(mouse_down)
             }
             PlatformInput::MouseUp(mouse_up) => {
-                self.mouse_position = mouse_up.position;
+                self.mouse_position = mouse_up.position.into();
                 self.modifiers = mouse_up.modifiers;
                 PlatformInput::MouseUp(mouse_up)
             }
@@ -3715,7 +3715,7 @@ impl Window {
                 PlatformInput::ModifiersChanged(modifiers_changed)
             }
             PlatformInput::ScrollWheel(scroll_wheel) => {
-                self.mouse_position = scroll_wheel.position;
+                self.mouse_position = scroll_wheel.position.into();
                 self.modifiers = scroll_wheel.modifiers;
                 PlatformInput::ScrollWheel(scroll_wheel)
             }
@@ -3723,12 +3723,12 @@ impl Window {
             // to internal drag and drop events.
             PlatformInput::FileDrop(file_drop) => match file_drop {
                 FileDropEvent::Entered { position, paths } => {
-                    self.mouse_position = position;
+                    self.mouse_position = position.into();
                     if cx.active_drag.is_none() {
                         cx.active_drag = Some(AnyDrag {
                             value: Arc::new(paths.clone()),
                             view: cx.new(|_| paths).into(),
-                            cursor_offset: position,
+                            cursor_offset: position.into(),
                             cursor_style: None,
                         });
                     }
@@ -3739,7 +3739,7 @@ impl Window {
                     })
                 }
                 FileDropEvent::Pending { position } => {
-                    self.mouse_position = position;
+                    self.mouse_position = position.into();
                     PlatformInput::MouseMove(MouseMoveEvent {
                         position,
                         pressed_button: Some(MouseButton::Left),
@@ -3748,7 +3748,7 @@ impl Window {
                 }
                 FileDropEvent::Submit { position } => {
                     cx.activate(true);
-                    self.mouse_position = position;
+                    self.mouse_position = position.into();
                     PlatformInput::MouseUp(MouseUpEvent {
                         button: MouseButton::Left,
                         position,
@@ -4728,7 +4728,7 @@ impl Window {
             if let Some(inspector) = self.inspector.clone() {
                 inspector.update(cx, |inspector, _cx| {
                     if let Some(depth) = inspector.pick_depth.as_mut() {
-                        *depth += f32::from(delta_y) / SCROLL_PIXELS_PER_LAYER;
+                        *depth += delta_y / SCROLL_PIXELS_PER_LAYER;
                         let max_depth = self.mouse_hit_test.ids.len() as f32 - 0.5;
                         if *depth < 0.0 {
                             *depth = 0.0;
