@@ -16,6 +16,9 @@ use std::{borrow::Cow, sync::Arc};
 
 const INTER_FONT: &[u8] = include_bytes!("../../assets/fonts/InterVariable.ttf");
 
+/// The name of the default font family embedded in GPUI.
+pub const DEFAULT_FONT_FAMILY: &str = "Inter Variable";
+
 pub(crate) struct ParleyTextSystem(RwLock<ParleyTextSystemState>);
 
 struct ParleyTextSystemState {
@@ -357,7 +360,6 @@ impl PlatformTextSystem for ParleyTextSystem {
                     let parley_run = glyph_run.run();
                     let font_id = font_id_from_parley_font(
                         parley_run.font(),
-                        font_runs,
                         &mut state_ref.fonts,
                     );
                     let is_emoji = state_ref.fonts.get(font_id.0).is_some_and(|f| f.is_emoji);
@@ -412,7 +414,6 @@ impl PlatformTextSystem for ParleyTextSystem {
 /// won't be in our loaded_fonts vec yet — register it on the fly.
 fn font_id_from_parley_font(
     parley_font: &parley::FontData,
-    font_runs: &[FontRun],
     loaded_fonts: &mut Vec<LoadedFont>,
 ) -> FontId {
     let parley_data = parley_font.data.data();
@@ -461,7 +462,7 @@ fn font_id_from_parley_font(
 impl ParleyTextSystemState {
     fn resolve_font(&mut self, font: &Font) -> Result<FontId> {
         let family_name =
-            crate::text_system::font_name_with_fallbacks(&font.family, "Inter Variable");
+            crate::text_system::font_name_with_fallbacks(&font.family, DEFAULT_FONT_FAMILY);
 
         // Query fontique for matching fonts
         let mut query = self
