@@ -39,10 +39,10 @@ use crate::{
     Action, AnyWindowHandle, App, AsyncWindowContext, BackgroundExecutor, Bounds,
     DEFAULT_WINDOW_SIZE, DevicePixels, DispatchEventResult, Font, FontId, FontMetrics, FontRun,
     ForegroundExecutor, GlyphId, GpuSpecs, ImageSource, Keymap, LineLayout, Pixels, PlatformInput,
-    Point, Priority, RealtimePriority, RenderGlyphParams, RenderImage, RenderImageParams,
-    RenderSvgParams, Scene, ShapedGlyph, ShapedRun, SharedString, Size, SvgRenderer,
-    SystemWindowTab, Task, TaskLabel, TaskTiming, ThreadTaskTimings, Window, WindowControlArea,
-    hash, point, px, size,
+    Point, Point2, Priority, Px, RealtimePriority, RenderGlyphParams, RenderImage,
+    RenderImageParams, RenderSvgParams, Scene, ShapedGlyph, ShapedRun, SharedString, Size,
+    SvgRenderer, SystemWindowTab, Task, TaskLabel, TaskTiming, ThreadTaskTimings, Window,
+    WindowControlArea, hash, point, px, size,
 };
 use anyhow::Result;
 use async_task::Runnable;
@@ -476,7 +476,7 @@ pub(crate) trait PlatformWindow: HasWindowHandle + HasDisplayHandle {
     fn scale_factor(&self) -> f32;
     fn appearance(&self) -> WindowAppearance;
     fn display(&self) -> Option<Rc<dyn PlatformDisplay>>;
-    fn mouse_position(&self) -> Point<Pixels>;
+    fn mouse_position(&self) -> Point2<Px>;
     fn modifiers(&self) -> Modifiers;
     fn capslock(&self) -> Capslock;
     fn set_input_handler(&mut self, input_handler: PlatformInputHandler);
@@ -542,7 +542,7 @@ pub(crate) trait PlatformWindow: HasWindowHandle + HasDisplayHandle {
         self.window_bounds()
     }
     fn request_decorations(&self, _decorations: WindowDecorations) {}
-    fn show_window_menu(&self, _position: Point<Pixels>) {}
+    fn show_window_menu(&self, _position: Point2<Px>) {}
     fn start_window_move(&self) {}
     fn start_window_resize(&self, _edge: ResizeEdge) {}
     fn window_decorations(&self) -> Decorations {

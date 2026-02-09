@@ -41,7 +41,7 @@ impl Render for WindowShadow {
                                 )
                             },
                             move |_bounds, hitbox, window, _cx| {
-                                let mouse = window.mouse_position();
+                                let mouse = window.mouse_position().into();
                                 let size = window.window_bounds().get_bounds().size;
                                 let Some(edge) = resize_edge(mouse, shadow_size, size) else {
                                     return;
@@ -166,7 +166,7 @@ impl Render for WindowShadow {
                                                 )
                                                 .on_click(|e, window, _| {
                                                     if e.is_right_click() {
-                                                        window.show_window_menu(e.position().into());
+                                                        window.show_window_menu(e.position());
                                                     }
                                                 })
                                                 .text_color(black())

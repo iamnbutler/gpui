@@ -842,7 +842,7 @@ impl VisualTestContext {
             window.invalidator.set_phase(DrawPhase::Prepaint);
             let mut element = Drawable::new(f(window, cx));
             element.layout_as_root(space.into(), window, cx);
-            window.with_absolute_element_offset(origin, |window| element.prepaint(window, cx));
+            window.with_absolute_element_offset(origin.into(), |window| element.prepaint(window, cx));
 
             window.invalidator.set_phase(DrawPhase::Paint);
             let (request_layout_state, prepaint_state) = element.paint(window, cx);

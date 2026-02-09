@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::{
     AtlasTextureId, AtlasTile, Background, Bounds, ContentMask, Corners, Edges, Hsla, Pixels,
-    Point, Radians, ScaledPixels, Size, bounds_tree::BoundsTree, point,
+    Point, Point2, Px, Radians, ScaledPx, ScaledPixels, Size, bounds_tree::BoundsTree, point,
 };
 use std::{
     fmt::Debug,
@@ -536,9 +536,9 @@ impl TransformationMatrix {
     }
 
     /// Move the origin by a given point
-    pub fn translate(self, point: Point<ScaledPixels>) -> Self {
+    pub fn translate(self, point: Point2<ScaledPx>) -> Self {
         let affine = glam::Affine2::from(self);
-        let translation = glam::Affine2::from_translation(glam::vec2(point.x.0, point.y.0));
+        let translation = glam::Affine2::from_translation(glam::vec2(point.x, point.y));
         Self::from(affine * translation)
     }
 
@@ -567,10 +567,10 @@ impl TransformationMatrix {
     }
 
     /// Apply transformation to a point, mainly useful for debugging
-    pub fn apply(&self, point: Point<Pixels>) -> Point<Pixels> {
+    pub fn apply(&self, point: Point2<Px>) -> Point2<Px> {
         let affine = glam::Affine2::from(*self);
-        let result = affine.transform_point2(glam::vec2(point.x.0, point.y.0));
-        Point::new(result.x.into(), result.y.into())
+        let result = affine.transform_point2(glam::vec2(point.x, point.y));
+        Point2::new(result.x, result.y)
     }
 }
 

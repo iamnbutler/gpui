@@ -1,7 +1,7 @@
 use crate::{
     AnyWindowHandle, AtlasKey, AtlasTextureId, AtlasTile, Bounds, DispatchEventResult, GpuSpecs,
     Pixels, PlatformAtlas, PlatformDisplay, PlatformInput, PlatformInputHandler, PlatformWindow,
-    Point, PromptButton, RequestFrameOptions, Size, TestPlatform, TileId, WindowAppearance,
+    Point2, PromptButton, Px, RequestFrameOptions, Size, TestPlatform, TileId, WindowAppearance,
     WindowBackgroundAppearance, WindowBounds, WindowControlArea, WindowParams,
 };
 use collections::HashMap;
@@ -145,8 +145,8 @@ impl PlatformWindow for TestWindow {
         Some(self.0.lock().display.clone())
     }
 
-    fn mouse_position(&self) -> Point<Pixels> {
-        Point::default()
+    fn mouse_position(&self) -> Point2<Px> {
+        Point2::default()
     }
 
     fn modifiers(&self) -> crate::Modifiers {
@@ -281,7 +281,7 @@ impl PlatformWindow for TestWindow {
         unimplemented!()
     }
 
-    fn show_window_menu(&self, _position: Point<Pixels>) {
+    fn show_window_menu(&self, _position: Point2<Px>) {
         unimplemented!()
     }
 
@@ -346,7 +346,7 @@ impl PlatformAtlas for TestAtlas {
                 tile_id: TileId(tile_id),
                 padding: 0,
                 bounds: crate::Bounds {
-                    origin: Point::default(),
+                    origin: crate::Point::default(),
                     size,
                 },
             },

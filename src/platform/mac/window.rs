@@ -269,11 +269,11 @@ unsafe fn build_classes() {
     }
 }
 
-pub(crate) fn convert_mouse_position(position: NSPoint, window_height: Pixels) -> Point<Pixels> {
-    point(
-        px(position.x as f32),
+pub(crate) fn convert_mouse_position(position: NSPoint, window_height: Pixels) -> Point2<Px> {
+    Point2::new(
+        position.x as f32,
         // macOS screen coordinates are relative to bottom left
-        window_height - px(position.y as f32),
+        (window_height - px(position.y as f32)).0,
     )
 }
 
@@ -1070,7 +1070,7 @@ impl PlatformWindow for MacWindow {
         }
     }
 
-    fn mouse_position(&self) -> Point<Pixels> {
+    fn mouse_position(&self) -> Point2<Px> {
         let position = unsafe {
             self.0
                 .lock()
@@ -2365,19 +2365,19 @@ extern "C" fn accepts_first_mouse(this: &Object, _: Sel, _: id) -> BOOL {
 extern "C" fn character_index_for_point(this: &Object, _: Sel, position: NSPoint) -> u64 {
     let position = screen_point_to_gpui_point(this, position);
     with_input_handler(this, |input_handler| {
-        input_handler.character_index_for_point(position)
+        input_handler.character_index_for_point(position.into())
     })
     .flatten()
     .map(|index| index as u64)
     .unwrap_or(NSNotFound as u64)
 }
 
-fn screen_point_to_gpui_point(this: &Object, position: NSPoint) -> Point<Pixels> {
+fn screen_point_to_gpui_point(this: &Object, position: NSPoint) -> Point2<Px> {
     let frame = get_frame(this);
     let window_x = position.x - frame.origin.x;
     let window_y = frame.size.height - (position.y - frame.origin.y);
 
-    point(px(window_x as f32), px(window_y as f32))
+    Point2::new(window_x as f32, window_y as f32)
 }
 
 extern "C" fn dragging_entered(this: &Object, _: Sel, dragging_info: id) -> NSDragOperation {
@@ -2486,7 +2486,7 @@ fn send_new_event(window_state_lock: &Mutex<MacWindowState>, e: PlatformInput) -
 
 fn drag_event_position(window_state: &Mutex<MacWindowState>, dragging_info: id) -> Point2<Px> {
     let drag_location: NSPoint = unsafe { msg_send![dragging_info, draggingLocation] };
-    convert_mouse_position(drag_location, window_state.lock().content_size().height).into()
+    convert_mouse_position(drag_location, window_state.lock().content_size().height)
 }
 
 fn with_input_handler<F, R>(window: &Object, f: F) -> Option<R>

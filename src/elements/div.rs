@@ -229,7 +229,7 @@ impl Interactivity {
     ) {
         self.mouse_down_listeners
             .push(Box::new(move |event, phase, hitbox, window, cx| {
-                if phase == DispatchPhase::Capture && !hitbox.contains(&window.mouse_position()) {
+                if phase == DispatchPhase::Capture && !hitbox.contains(&window.mouse_position().into()) {
                     (listener)(event, window, cx)
                 }
             }));
@@ -1378,7 +1378,7 @@ impl Element for Div {
         let mut child_min = point(Pixels::MAX, Pixels::MAX);
         let mut child_max = Point::default();
         if let Some(handle) = self.interactivity.scroll_anchor.as_ref() {
-            *handle.last_origin.borrow_mut() = bounds.origin - window.element_offset();
+            *handle.last_origin.borrow_mut() = bounds.origin - Into::<Point<Pixels>>::into(window.element_offset());
         }
         let content_size = if request_layout.child_layout_ids.is_empty() {
             bounds.size
@@ -1422,7 +1422,7 @@ impl Element for Div {
                     return hitbox;
                 }
 
-                window.with_element_offset(scroll_offset, |window| {
+                window.with_element_offset(scroll_offset.into(), |window| {
                     for child in &mut self.children {
                         child.prepaint(window, cx);
                     }
@@ -1941,14 +1941,14 @@ impl Interactivity {
                         size: text.size(FONT_SIZE),
                     };
                     if self.source_location.is_some()
-                        && text_bounds.contains(&window.mouse_position())
+                        && text_bounds.contains(&window.mouse_position().into())
                         && window.modifiers().secondary()
                     {
                         let secondary_held = window.modifiers().secondary();
                         window.on_key_event({
                             move |e: &crate::ModifiersChangedEvent, _phase, window, _cx| {
                                 if e.modifiers.secondary() != secondary_held
-                                    && text_bounds.contains(&window.mouse_position())
+                                    && text_bounds.contains(&window.mouse_position().into())
                                 {
                                     window.refresh();
                                 }
@@ -2310,7 +2310,7 @@ impl Interactivity {
                     let source_bounds = hitbox.bounds;
                     move |window: &Window| {
                         pending_mouse_down.borrow().is_none()
-                            && source_bounds.contains(&window.mouse_position())
+                            && source_bounds.contains(&window.mouse_position().into())
                     }
                 });
                 let check_is_hovered = Rc::new({
@@ -2783,7 +2783,7 @@ fn handle_tooltip_mouse_move(
                                 ActiveTooltip::Visible {
                                     tooltip: AnyTooltip {
                                         view,
-                                        mouse_position: window.mouse_position(),
+                                        mouse_position: window.mouse_position().into(),
                                         check_visible_and_update: Rc::new(
                                             move |tooltip_bounds, window, cx| {
                                                 handle_tooltip_check_visible_and_update(
@@ -2836,7 +2836,7 @@ fn handle_tooltip_check_visible_and_update(
     }
 
     let is_hovered = check_is_hovered(window)
-        || (tooltip_is_hoverable && tooltip_bounds.contains(&window.mouse_position()));
+        || (tooltip_is_hoverable && tooltip_bounds.contains(&window.mouse_position().into()));
     let action = match active_tooltip.borrow().as_ref() {
         Some(ActiveTooltip::Visible { tooltip, .. }) => {
             if is_hovered {
