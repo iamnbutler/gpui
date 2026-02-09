@@ -425,8 +425,8 @@ impl MacWindowState {
     fn move_traffic_light(&self) {
         if let Some(traffic_light_position) = self.traffic_light_position {
             if self.is_fullscreen() {
-                // Moving traffic lights while fullscreen doesn't work,
-                // see https://github.com/zed-industries/zed/issues/4712
+                // Moving traffic lights while fullscreen doesn't work on macOS;
+                // the buttons are hidden/repositioned by the system in fullscreen mode.
                 return;
             }
 
@@ -1588,7 +1588,7 @@ fn get_scale_factor(native_window: id) -> f32 {
     };
 
     // We are not certain what triggers this, but it seems that sometimes
-    // this method would return 0 (https://github.com/zed-industries/zed/issues/6412)
+    // this method would return 0 (likely when the window has no associated screen).
     // It seems most likely that this would happen if the window has no screen
     // (if it is off-screen), though we'd expect to see viewDidChangeBackingProperties before
     // it was rendered for real.

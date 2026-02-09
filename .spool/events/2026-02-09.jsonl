@@ -6,3 +6,13 @@
 {"v":1,"op":"complete","id":"mlehnjvd-i5kn","ts":"2026-02-09T01:23:41.954100Z","by":"@iamnbutler","branch":"parley-text-system","d":{"resolution":"done"}}
 {"v":1,"op":"create","id":"mlehnobw-5zqj","ts":"2026-02-09T01:23:43.724250Z","by":"@iamnbutler","branch":"parley-text-system","d":{"description":"Added visual debug sections with colored containers to verify line height, text sizing, and baseline positioning. Moved example to examples/feature/text.rs.","priority":"p2","stream":"mle6w6iy-rqf8","tags":["feature"],"title":"Add box model debug sections to text example"}}
 {"v":1,"op":"complete","id":"mlehnobw-5zqj","ts":"2026-02-09T01:23:47.840393Z","by":"@iamnbutler","branch":"parley-text-system","d":{"resolution":"done"}}
+{"v":1,"op":"create","id":"mlfapuzn-be97","ts":"2026-02-09T14:57:14.531223Z","by":"@iamnbutler","branch":"cleanup/vendor-deps","d":{"description":"Fork published Zed crates into project, strip Zed-specific code. PR #5.","priority":"p1","stream":"mle5ybmq-d9bf","title":"Vendor gpui_util and gpui_http_client"}}
+{"v":1,"op":"complete","id":"mlfapuzn-be97","ts":"2026-02-09T14:57:18.890083Z","by":"@iamnbutler","branch":"cleanup/vendor-deps","d":{"resolution":"done"}}
+{"v":1,"op":"create","id":"mlfboqbj-0xjh","ts":"2026-02-09T15:24:21.439619Z","by":"@iamnbutler","branch":"scene-to-core","d":{"description":"Move rendering primitives to gpui_core, clean up build.rs. PR #6.","priority":"p1","stream":"mle6w7yw-218p","title":"Move scene + atlas + bounds_tree to gpui_core"}}
+{"v":1,"op":"complete","id":"mlfboqbj-0xjh","ts":"2026-02-09T15:24:26.135501Z","by":"@iamnbutler","branch":"scene-to-core","d":{"resolution":"done"}}
+{"v":1,"op":"complete","id":"mle7iqtk-a8e0","ts":"2026-02-09T15:36:28.980328Z","by":"@iamnbutler","branch":"cleanup/remove-zed-refs","d":{"resolution":"done"}}
+{"v":1,"op":"complete","id":"mle7isez-7pm5","ts":"2026-02-09T15:36:29.007718Z","by":"@iamnbutler","branch":"cleanup/remove-zed-refs","d":{"resolution":"done"}}
+{"v":1,"op":"complete","id":"mle7iubl-876i","ts":"2026-02-09T15:36:29.034549Z","by":"@iamnbutler","branch":"cleanup/remove-zed-refs","d":{"resolution":"done"}}
+{"v":1,"op":"complete","id":"mle7izgj-zisg","ts":"2026-02-09T15:36:29.056901Z","by":"@iamnbutler","branch":"cleanup/remove-zed-refs","d":{"resolution":"done"}}
+{"v":1,"op":"complete","id":"mle7j0fd-vuar","ts":"2026-02-09T15:36:29.079667Z","by":"@iamnbutler","branch":"cleanup/remove-zed-refs","d":{"resolution":"done"}}
+{"v":1,"op":"complete","id":"mle7ivlt-g0q4","ts":"2026-02-09T15:36:36.674521Z","by":"@iamnbutler","branch":"cleanup/remove-zed-refs","d":{"resolution":"wontfix"}}

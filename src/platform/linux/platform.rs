@@ -67,10 +67,10 @@ impl<T> ResultExt for anyhow::Result<T> {
                 block_on(
                     proxy.add_notification(
                         notification_id,
-                        Notification::new("Zed failed to launch")
+                        Notification::new("Application failed to launch")
                             .body(Some(
                                 format!(
-                                    "{e:?}. See https://zed.dev/docs/linux for troubleshooting steps."
+                                    "{e:?}"
                                 )
                                 .as_str(),
                             ))
