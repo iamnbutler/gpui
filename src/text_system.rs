@@ -72,7 +72,13 @@ impl TextSystem {
             font_ids_by_font: RwLock::default(),
             wrapper_pool: Mutex::default(),
             font_runs_pool: Mutex::default(),
-            fallback_font_stack: smallvec![font("Inter Variable")],
+            fallback_font_stack: smallvec![
+                font("Inter Variable"),
+                font("Helvetica"),    // macOS
+                font("DejaVu Sans"),  // Linux
+                font("Segoe UI"),     // Windows
+                font("Arial"),        // widely available
+            ],
         }
     }
 

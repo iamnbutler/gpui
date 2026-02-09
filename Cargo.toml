@@ -294,6 +294,14 @@ naga = { version = "25.0", features = ["wgsl-in"] }
 calloop = { git = "https://github.com/zed-industries/calloop" }
 
 # ============================================================================
+# Feature Examples
+# ============================================================================
+
+[[example]]
+name = "feature_text"
+path = "examples/feature/text.rs"
+
+# ============================================================================
 # Learn Examples - Educational examples for learning GPUI
 # ============================================================================
 
@@ -328,10 +336,6 @@ path = "examples/learn/animation.rs"
 [[example]]
 name = "text"
 path = "examples/learn/text.rs"
-
-[[example]]
-name = "text_system_test"
-path = "examples/learn/text_system_test.rs"
 
 # ============================================================================
 # Bench Examples - Performance benchmarks

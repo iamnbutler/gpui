@@ -131,8 +131,7 @@ impl PlatformTextSystem for ParleyTextSystem {
             .font_ref()
             .ok_or_else(|| anyhow!("failed to create font reference"))?;
 
-        let glyph_metrics =
-            font_ref.glyph_metrics(SkriSize::unscaled(), LocationRef::default());
+        let glyph_metrics = font_ref.glyph_metrics(SkriSize::unscaled(), LocationRef::default());
         let skri_glyph = SkriGlyphId::new(glyph_id.0);
 
         let bounds = glyph_metrics.bounds(skri_glyph);
@@ -152,8 +151,7 @@ impl PlatformTextSystem for ParleyTextSystem {
             .font_ref()
             .ok_or_else(|| anyhow!("failed to create font reference"))?;
 
-        let glyph_metrics =
-            font_ref.glyph_metrics(SkriSize::unscaled(), LocationRef::default());
+        let glyph_metrics = font_ref.glyph_metrics(SkriSize::unscaled(), LocationRef::default());
         let skri_glyph = SkriGlyphId::new(glyph_id.0);
 
         let advance_width = glyph_metrics.advance_width(skri_glyph).unwrap_or(0.0);
@@ -312,9 +310,10 @@ impl PlatformTextSystem for ParleyTextSystem {
 
         // Build parley layout for shaping
         let state_ref = &mut *state;
-        let mut builder = state_ref
-            .layout_context
-            .ranged_builder(&mut state_ref.font_context, text, 1.0, true);
+        let mut builder =
+            state_ref
+                .layout_context
+                .ranged_builder(&mut state_ref.font_context, text, 1.0, true);
 
         // Apply font styles per run
         let mut offset = 0;
@@ -339,10 +338,7 @@ impl PlatformTextSystem for ParleyTextSystem {
             } else {
                 font_size.0
             };
-            builder.push(
-                parley::style::StyleProperty::FontSize(run_font_size),
-                range,
-            );
+            builder.push(parley::style::StyleProperty::FontSize(run_font_size), range);
             break_ligature = !break_ligature;
 
             offset += run.len;
@@ -365,16 +361,15 @@ impl PlatformTextSystem for ParleyTextSystem {
 
                     let mut glyphs = Vec::new();
 
-                    // Iterate clusters to get text_range, then get glyphs from each cluster
+                    // Iterate clusters to get text_range, then get glyphs from each cluster.
                     let run_offset = glyph_run.offset();
-                    let baseline = glyph_run.baseline();
                     let mut glyph_x = run_offset;
 
                     for cluster in parley_run.visual_clusters() {
                         let text_index = cluster.text_range().start;
                         for glyph in cluster.glyphs() {
                             let x = glyph_x + glyph.x;
-                            let y = baseline + glyph.y;
+                            let y = glyph.y;
                             total_width = total_width.max(x + glyph.advance);
                             glyphs.push(ShapedGlyph {
                                 id: GlyphId(glyph.id),
@@ -431,10 +426,7 @@ fn run_font_id_from_parley(
     }
 
     // Fallback: just use the first font run's ID
-    font_runs
-        .first()
-        .map(|r| r.font_id)
-        .unwrap_or(FontId(0))
+    font_runs.first().map(|r| r.font_id).unwrap_or(FontId(0))
 }
 
 impl ParleyTextSystemState {
@@ -484,8 +476,7 @@ impl ParleyTextSystemState {
                     .is_some();
 
                 // Exception for icon fonts like Segoe Fluent Icons
-                let is_icon_font =
-                    family_name.contains("Icons") || family_name.contains("Symbol");
+                let is_icon_font = family_name.contains("Icons") || family_name.contains("Symbol");
 
                 if !has_m_glyph && !is_icon_font {
                     return Err(anyhow!(
