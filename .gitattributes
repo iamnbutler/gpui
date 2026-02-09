@@ -1,2 +1,5 @@
 # Prevent GitHub from displaying comments within JSON files as errors.
 *.json linguist-language=JSON-with-Comments
+
+# Hide spool task management data from GitHub diffs and language stats
+.spool/** linguist-generated
