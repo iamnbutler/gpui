@@ -1,6 +1,3 @@
-// todo("windows"): remove
-#![cfg_attr(windows, allow(dead_code))]
-
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 
@@ -16,22 +13,22 @@ use std::{
 };
 
 #[allow(non_camel_case_types, unused)]
-pub(crate) type PathVertex_ScaledPixels = PathVertex<ScaledPixels>;
+pub type PathVertex_ScaledPixels = PathVertex<ScaledPixels>;
 
-pub(crate) type DrawOrder = u32;
+pub type DrawOrder = u32;
 
 #[derive(Default)]
-pub(crate) struct Scene {
-    pub(crate) paint_operations: Vec<PaintOperation>,
+pub struct Scene {
+    pub paint_operations: Vec<PaintOperation>,
     primitive_bounds: BoundsTree<ScaledPixels>,
     layer_stack: Vec<DrawOrder>,
-    pub(crate) shadows: Vec<Shadow>,
-    pub(crate) quads: Vec<Quad>,
-    pub(crate) paths: Vec<Path<ScaledPixels>>,
-    pub(crate) underlines: Vec<Underline>,
-    pub(crate) monochrome_sprites: Vec<MonochromeSprite>,
-    pub(crate) polychrome_sprites: Vec<PolychromeSprite>,
-    pub(crate) surfaces: Vec<PaintSurface>,
+    pub shadows: Vec<Shadow>,
+    pub quads: Vec<Quad>,
+    pub paths: Vec<Path<ScaledPixels>>,
+    pub underlines: Vec<Underline>,
+    pub monochrome_sprites: Vec<MonochromeSprite>,
+    pub polychrome_sprites: Vec<PolychromeSprite>,
+    pub surfaces: Vec<PaintSurface>,
 }
 
 impl Scene {
@@ -50,6 +47,10 @@ impl Scene {
 
     pub fn len(&self) -> usize {
         self.paint_operations.len()
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.paint_operations.is_empty()
     }
 
     pub fn push_layer(&mut self, bounds: Bounds<ScaledPixels>) {
@@ -136,14 +137,7 @@ impl Scene {
         self.surfaces.sort_by_key(|surface| surface.order);
     }
 
-    #[cfg_attr(
-        all(
-            any(target_os = "linux", target_os = "freebsd"),
-            not(any(feature = "x11", feature = "wayland"))
-        ),
-        allow(dead_code)
-    )]
-    pub(crate) fn batches(&self) -> impl Iterator<Item = PrimitiveBatch<'_>> {
+    pub fn batches(&self) -> impl Iterator<Item = PrimitiveBatch<'_>> {
         BatchIterator {
             shadows: &self.shadows,
             shadows_start: 0,
@@ -171,14 +165,7 @@ impl Scene {
 }
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd, Default)]
-#[cfg_attr(
-    all(
-        any(target_os = "linux", target_os = "freebsd"),
-        not(any(feature = "x11", feature = "wayland"))
-    ),
-    allow(dead_code)
-)]
-pub(crate) enum PrimitiveKind {
+pub enum PrimitiveKind {
     Shadow,
     #[default]
     Quad,
@@ -189,14 +176,14 @@ pub(crate) enum PrimitiveKind {
     Surface,
 }
 
-pub(crate) enum PaintOperation {
+pub enum PaintOperation {
     Primitive(Primitive),
     StartLayer(Bounds<ScaledPixels>),
     EndLayer,
 }
 
 #[derive(Clone)]
-pub(crate) enum Primitive {
+pub enum Primitive {
     Shadow(Shadow),
     Quad(Quad),
     Path(Path<ScaledPixels>),
@@ -232,13 +219,6 @@ impl Primitive {
     }
 }
 
-#[cfg_attr(
-    all(
-        any(target_os = "linux", target_os = "freebsd"),
-        not(any(feature = "x11", feature = "wayland"))
-    ),
-    allow(dead_code)
-)]
 struct BatchIterator<'a> {
     shadows: &'a [Shadow],
     shadows_start: usize,
@@ -425,14 +405,7 @@ impl<'a> Iterator for BatchIterator<'a> {
 }
 
 #[derive(Debug)]
-#[cfg_attr(
-    all(
-        any(target_os = "linux", target_os = "freebsd"),
-        not(any(feature = "x11", feature = "wayland"))
-    ),
-    allow(dead_code)
-)]
-pub(crate) enum PrimitiveBatch<'a> {
+pub enum PrimitiveBatch<'a> {
     Shadows(&'a [Shadow]),
     Quads(&'a [Quad]),
     Paths(&'a [Path<ScaledPixels>]),
@@ -450,7 +423,7 @@ pub(crate) enum PrimitiveBatch<'a> {
 
 #[derive(Default, Debug, Clone)]
 #[repr(C)]
-pub(crate) struct Quad {
+pub struct Quad {
     pub order: DrawOrder,
     pub border_style: BorderStyle,
     pub bounds: Bounds<ScaledPixels>,
@@ -469,7 +442,7 @@ impl From<Quad> for Primitive {
 
 #[derive(Debug, Clone)]
 #[repr(C)]
-pub(crate) struct Underline {
+pub struct Underline {
     pub order: DrawOrder,
     pub pad: u32, // align to 8 bytes
     pub bounds: Bounds<ScaledPixels>,
@@ -487,7 +460,7 @@ impl From<Underline> for Primitive {
 
 #[derive(Debug, Clone)]
 #[repr(C)]
-pub(crate) struct Shadow {
+pub struct Shadow {
     pub order: DrawOrder,
     pub blur_radius: ScaledPixels,
     pub bounds: Bounds<ScaledPixels>,
@@ -536,7 +509,7 @@ impl TransformationMatrix {
     }
 
     /// Move the origin by a given point
-    pub fn translate(mut self, point: Point<ScaledPixels>) -> Self {
+    pub fn translate(self, point: Point<ScaledPixels>) -> Self {
         self.compose(Self {
             rotation_scale: [[1.0, 0.0], [0.0, 1.0]],
             translation: [point.x.0, point.y.0],
@@ -618,7 +591,7 @@ impl Default for TransformationMatrix {
 
 #[derive(Clone, Debug)]
 #[repr(C)]
-pub(crate) struct MonochromeSprite {
+pub struct MonochromeSprite {
     pub order: DrawOrder,
     pub pad: u32, // align to 8 bytes
     pub bounds: Bounds<ScaledPixels>,
@@ -636,7 +609,7 @@ impl From<MonochromeSprite> for Primitive {
 
 #[derive(Clone, Debug)]
 #[repr(C)]
-pub(crate) struct PolychromeSprite {
+pub struct PolychromeSprite {
     pub order: DrawOrder,
     pub pad: u32, // align to 8 bytes
     pub grayscale: bool,
@@ -654,7 +627,7 @@ impl From<PolychromeSprite> for Primitive {
 }
 
 #[derive(Clone, Debug)]
-pub(crate) struct PaintSurface {
+pub struct PaintSurface {
     pub order: DrawOrder,
     pub bounds: Bounds<ScaledPixels>,
     pub content_mask: ContentMask<ScaledPixels>,
@@ -669,17 +642,17 @@ impl From<PaintSurface> for Primitive {
 }
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
-pub(crate) struct PathId(pub(crate) usize);
+pub struct PathId(pub usize);
 
 /// A line made up of a series of vertices and control points.
 #[derive(Clone, Debug)]
 pub struct Path<P: Clone + Debug + Default + PartialEq> {
-    pub(crate) id: PathId,
-    pub(crate) order: DrawOrder,
-    pub(crate) bounds: Bounds<P>,
-    pub(crate) content_mask: ContentMask<P>,
-    pub(crate) vertices: Vec<PathVertex<P>>,
-    pub(crate) color: Background,
+    pub id: PathId,
+    pub order: DrawOrder,
+    pub bounds: Bounds<P>,
+    pub content_mask: ContentMask<P>,
+    pub vertices: Vec<PathVertex<P>>,
+    pub color: Background,
     start: Point<P>,
     current: Point<P>,
     contour_count: usize,
@@ -803,7 +776,7 @@ where
     T: Clone + Debug + Default + PartialEq + PartialOrd + Add<T, Output = T> + Sub<Output = T>,
 {
     #[allow(unused)]
-    pub(crate) fn clipped_bounds(&self) -> Bounds<T> {
+    pub fn clipped_bounds(&self) -> Bounds<T> {
         self.bounds.intersect(&self.content_mask.bounds)
     }
 }
@@ -816,10 +789,10 @@ impl From<Path<ScaledPixels>> for Primitive {
 
 #[derive(Clone, Debug)]
 #[repr(C)]
-pub(crate) struct PathVertex<P: Clone + Debug + Default + PartialEq> {
-    pub(crate) xy_position: Point<P>,
-    pub(crate) st_position: Point<f32>,
-    pub(crate) content_mask: ContentMask<P>,
+pub struct PathVertex<P: Clone + Debug + Default + PartialEq> {
+    pub xy_position: Point<P>,
+    pub st_position: Point<f32>,
+    pub content_mask: ContentMask<P>,
 }
 
 impl PathVertex<Pixels> {

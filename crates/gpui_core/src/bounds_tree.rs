@@ -6,7 +6,7 @@ use std::{
 };
 
 #[derive(Debug)]
-pub(crate) struct BoundsTree<U>
+pub struct BoundsTree<U>
 where
     U: Clone + Debug + Default + PartialEq,
 {
