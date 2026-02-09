@@ -439,7 +439,8 @@ fn run_font_id_from_parley(
 
 impl ParleyTextSystemState {
     fn resolve_font(&mut self, font: &Font) -> Result<FontId> {
-        let family_name = crate::text_system::font_name_with_fallbacks(&font.family, "Inter");
+        let family_name =
+            crate::text_system::font_name_with_fallbacks(&font.family, "Inter Variable");
 
         // Query fontique for matching fonts
         let mut query = self
