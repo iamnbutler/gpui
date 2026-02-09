@@ -323,13 +323,14 @@ impl DataTable {
                         window.on_mouse_event({
                             let entity = entity.clone();
                             move |ev: &MouseDownEvent, _, _, cx| {
-                                if !thumb_bounds.contains(&ev.position) {
+                                let position: Point<Pixels> = ev.position.into();
+                                if !thumb_bounds.contains(&position) {
                                     return;
                                 }
 
                                 entity.update(cx, |this, _| {
                                     this.drag_position = Some(
-                                        ev.position - thumb_bounds.origin - table_bounds.origin,
+                                        position - thumb_bounds.origin - table_bounds.origin,
                                     );
                                 })
                             }
@@ -353,7 +354,8 @@ impl DataTable {
                             };
 
                             let inside_offset = drag_pos.y;
-                            let percentage = ((ev.position.y - table_bounds.origin.y
+                            let position: Point<Pixels> = ev.position.into();
+                            let percentage = ((position.y - table_bounds.origin.y
                                 + inside_offset)
                                 / (table_bounds.size.height))
                                 .clamp(0., 1.);

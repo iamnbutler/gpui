@@ -41,7 +41,7 @@ impl Render for WindowShadow {
                                 )
                             },
                             move |_bounds, hitbox, window, _cx| {
-                                let mouse = window.mouse_position();
+                                let mouse = window.mouse_position().into();
                                 let size = window.window_bounds().get_bounds().size;
                                 let Some(edge) = resize_edge(mouse, shadow_size, size) else {
                                     return;
@@ -81,7 +81,7 @@ impl Render for WindowShadow {
                         let size = window.window_bounds().get_bounds().size;
                         let pos = e.position;
 
-                        match resize_edge(pos, shadow_size, size) {
+                        match resize_edge(pos.into(), shadow_size, size) {
                             Some(edge) => window.start_window_resize(edge),
                             None => window.start_window_move(),
                         };

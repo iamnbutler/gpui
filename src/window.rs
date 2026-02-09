@@ -9,7 +9,8 @@ use crate::{
     KeyBinding, KeyContext, KeyDownEvent, KeyEvent, Keystroke, KeystrokeEvent, LayoutId,
     LineLayoutIndex, Modifiers, ModifiersChangedEvent, MonochromeSprite, MouseButton, MouseEvent,
     MouseMoveEvent, MouseUpEvent, Path, Pixels, PlatformAtlas, PlatformDisplay, PlatformInput,
-    PlatformInputHandler, PlatformWindow, Point, PolychromeSprite, Priority, PromptButton,
+    PlatformInputHandler, PlatformWindow, Point, Point2, PolychromeSprite, Priority, PromptButton,
+    Px,
     PromptLevel, Quad, Render, RenderGlyphParams, RenderImage, RenderImageParams, RenderSvgParams,
     Replay, ResizeEdge, SMOOTH_SVG_SCALE_FACTOR, SUBPIXEL_VARIANTS_X, SUBPIXEL_VARIANTS_Y,
     ScaledPixels, Scene, Shadow, SharedString, Size, StrikethroughStyle, Style, SubscriberSet,
@@ -644,7 +645,7 @@ impl TooltipId {
             .as_ref()
             .is_some_and(|tooltip_bounds| {
                 tooltip_bounds.id == *self
-                    && tooltip_bounds.bounds.contains(&window.mouse_position())
+                    && tooltip_bounds.bounds.contains(&window.mouse_position().into())
             })
     }
 }
@@ -667,7 +668,7 @@ pub(crate) struct DeferredDraw {
     element_id_stack: SmallVec<[ElementId; 32]>,
     text_style_stack: Vec<TextStyleRefinement>,
     element: Option<AnyElement>,
-    absolute_offset: Point<Pixels>,
+    absolute_offset: Point2<Px>,
     prepaint_range: Range<PrepaintStateIndex>,
     paint_range: Range<PaintIndex>,
 }
@@ -850,7 +851,7 @@ pub struct Window {
     pub(crate) element_id_stack: SmallVec<[ElementId; 32]>,
     pub(crate) text_style_stack: Vec<TextStyleRefinement>,
     pub(crate) rendered_entity_stack: Vec<EntityId>,
-    pub(crate) element_offset_stack: Vec<Point<Pixels>>,
+    pub(crate) element_offset_stack: Vec<Point2<Px>>,
     pub(crate) element_opacity: f32,
     pub(crate) content_mask_stack: Vec<ContentMask<Pixels>>,
     pub(crate) requested_autoscroll: Option<Bounds<Pixels>>,
@@ -865,7 +866,7 @@ pub struct Window {
     focus_listeners: SubscriberSet<(), AnyWindowFocusListener>,
     pub(crate) focus_lost_listeners: SubscriberSet<(), AnyObserver>,
     default_prevented: bool,
-    mouse_position: Point<Pixels>,
+    mouse_position: Point2<Px>,
     mouse_hit_test: HitTest,
     modifiers: Modifiers,
     capslock: Capslock,
@@ -1818,7 +1819,7 @@ impl Window {
     }
 
     /// Opens the native title bar context menu, useful when implementing client side decorations (Wayland and X11)
-    pub fn show_window_menu(&self, position: Point<Pixels>) {
+    pub fn show_window_menu(&self, position: Point2<Px>) {
         self.platform_window.show_window_menu(position)
     }
 
@@ -1970,7 +1971,7 @@ impl Window {
     }
 
     /// The position of the mouse relative to the window.
-    pub fn mouse_position(&self) -> Point<Pixels> {
+    pub fn mouse_position(&self) -> Point2<Px> {
         self.mouse_position
     }
 
@@ -2142,7 +2143,8 @@ impl Window {
             self.prompt = Some(prompt);
         } else if let Some(active_drag) = cx.active_drag.take() {
             let mut element = active_drag.view.clone().into_any();
-            let offset = self.mouse_position() - active_drag.cursor_offset;
+            let mouse_pos: Point<Pixels> = self.mouse_position().into();
+            let offset = mouse_pos - active_drag.cursor_offset;
             element.prepaint_as_root(offset, AvailableSpace::min_size(), self, cx);
             active_drag_element = Some(element);
             cx.active_drag = Some(active_drag);
@@ -2150,7 +2152,7 @@ impl Window {
             tooltip_element = self.prepaint_tooltip(cx);
         }
 
-        self.mouse_hit_test = self.next_frame.hit_test(self.mouse_position);
+        self.mouse_hit_test = self.next_frame.hit_test(self.mouse_position.into());
 
         // Now actually paint the elements.
         self.invalidator.set_phase(DrawPhase::Paint);
@@ -2229,7 +2231,7 @@ impl Window {
                 continue;
             }
 
-            self.with_absolute_element_offset(tooltip_bounds.origin, |window| {
+            self.with_absolute_element_offset(tooltip_bounds.origin.into(), |window| {
                 element.prepaint(window, cx)
             });
 
@@ -2496,16 +2498,16 @@ impl Window {
     /// scrolling. This method should only be called during the prepaint phase of element drawing.
     pub fn with_element_offset<R>(
         &mut self,
-        offset: Point<Pixels>,
+        offset: Point2<Px>,
         f: impl FnOnce(&mut Self) -> R,
     ) -> R {
         self.invalidator.debug_assert_prepaint();
 
-        if offset.is_zero() {
+        if offset == Point2::ZERO {
             return f(self);
         };
 
-        let abs_offset = self.element_offset() + offset;
+        let abs_offset = self.element_offset() + offset.to_vector();
         self.with_absolute_element_offset(abs_offset, f)
     }
 
@@ -2514,7 +2516,7 @@ impl Window {
     /// the prepaint phase of element drawing.
     pub fn with_absolute_element_offset<R>(
         &mut self,
-        offset: Point<Pixels>,
+        offset: Point2<Px>,
         f: impl FnOnce(&mut Self) -> R,
     ) -> R {
         self.invalidator.debug_assert_prepaint();
@@ -2625,12 +2627,12 @@ impl Window {
     }
     /// Obtain the current element offset. This method should only be called during the
     /// prepaint phase of element drawing.
-    pub fn element_offset(&self) -> Point<Pixels> {
+    pub fn element_offset(&self) -> Point2<Px> {
         self.invalidator.debug_assert_prepaint();
         self.element_offset_stack
             .last()
             .copied()
-            .unwrap_or_default()
+            .unwrap_or(Point2::ZERO)
     }
 
     /// Obtain the current element opacity. This method should only be called during the
@@ -2848,7 +2850,7 @@ impl Window {
     pub fn defer_draw(
         &mut self,
         element: AnyElement,
-        absolute_offset: Point<Pixels>,
+        absolute_offset: Point2<Px>,
         priority: usize,
     ) {
         self.invalidator.debug_assert_prepaint();
@@ -3384,7 +3386,8 @@ impl Window {
             .unwrap()
             .layout_bounds(layout_id, scale_factor)
             .map(Into::into);
-        bounds.origin += self.element_offset();
+        let offset: Point<Pixels> = self.element_offset().into();
+        bounds.origin += offset;
         bounds
     }
 
@@ -3728,7 +3731,7 @@ impl Window {
                         cx.active_drag = Some(AnyDrag {
                             value: Arc::new(paths.clone()),
                             view: cx.new(|_| paths).into(),
-                            cursor_offset: position,
+                            cursor_offset: position.into(),
                             cursor_style: None,
                         });
                     }
@@ -3777,7 +3780,7 @@ impl Window {
     }
 
     fn dispatch_mouse_event(&mut self, event: &dyn Any, cx: &mut App) {
-        let hit_test = self.rendered_frame.hit_test(self.mouse_position());
+        let hit_test = self.rendered_frame.hit_test(self.mouse_position().into());
         if hit_test != self.mouse_hit_test {
             self.mouse_hit_test = hit_test;
             self.reset_cursor_style(cx);
@@ -4728,7 +4731,7 @@ impl Window {
             if let Some(inspector) = self.inspector.clone() {
                 inspector.update(cx, |inspector, _cx| {
                     if let Some(depth) = inspector.pick_depth.as_mut() {
-                        *depth += f32::from(delta_y) / SCROLL_PIXELS_PER_LAYER;
+                        *depth += delta_y / SCROLL_PIXELS_PER_LAYER;
                         let max_depth = self.mouse_hit_test.ids.len() as f32 - 0.5;
                         if *depth < 0.0 {
                             *depth = 0.0;

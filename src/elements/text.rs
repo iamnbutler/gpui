@@ -773,7 +773,7 @@ impl Element for InteractiveText {
             |interactive_state, window| {
                 let mut interactive_state = interactive_state.unwrap_or_default();
                 if let Some(click_listener) = self.click_listener.take() {
-                    let mouse_position = window.mouse_position();
+                    let mouse_position: Point<Pixels> = window.mouse_position().into();
                     if let Ok(ix) = text_layout.index_for_position(mouse_position)
                         && self
                             .clickable_ranges
@@ -792,7 +792,7 @@ impl Element for InteractiveText {
                             move |event: &MouseUpEvent, phase, window: &mut Window, cx| {
                                 if phase == DispatchPhase::Bubble && hitbox.is_hovered(window) {
                                     if let Ok(mouse_up_index) =
-                                        text_layout.index_for_position(event.position)
+                                        text_layout.index_for_position(event.position.into())
                                     {
                                         click_listener(
                                             &clickable_ranges,
@@ -816,7 +816,7 @@ impl Element for InteractiveText {
                             if phase == DispatchPhase::Bubble
                                 && hitbox.is_hovered(window)
                                 && let Ok(mouse_down_index) =
-                                    text_layout.index_for_position(event.position)
+                                    text_layout.index_for_position(event.position.into())
                             {
                                 mouse_down.set(Some(mouse_down_index));
                                 window.refresh();
@@ -833,7 +833,7 @@ impl Element for InteractiveText {
                     move |event: &MouseMoveEvent, phase, window, cx| {
                         if phase == DispatchPhase::Bubble && hitbox.is_hovered(window) {
                             let current = hovered_index.get();
-                            let updated = text_layout.index_for_position(event.position).ok();
+                            let updated = text_layout.index_for_position(event.position.into()).ok();
                             if current != updated {
                                 hovered_index.set(updated);
                                 if let Some(hover_listener) = hover_listener.as_ref() {
@@ -852,7 +852,7 @@ impl Element for InteractiveText {
                         let text_layout = text_layout.clone();
                         move |window: &mut Window, cx: &mut App| {
                             text_layout
-                                .index_for_position(window.mouse_position())
+                                .index_for_position(window.mouse_position().into())
                                 .ok()
                                 .and_then(|position| tooltip_builder(position, window, cx))
                                 .map(|view| (view, tooltip_is_hoverable))
@@ -866,9 +866,9 @@ impl Element for InteractiveText {
                         let pending_mouse_down = interactive_state.mouse_down_index.clone();
                         move |window: &Window| {
                             text_layout
-                                .index_for_position(window.mouse_position())
+                                .index_for_position(window.mouse_position().into())
                                 .is_ok()
-                                && source_bounds.contains(&window.mouse_position())
+                                && source_bounds.contains(&window.mouse_position().into())
                                 && pending_mouse_down.get().is_none()
                         }
                     });
@@ -879,7 +879,7 @@ impl Element for InteractiveText {
                         let pending_mouse_down = interactive_state.mouse_down_index.clone();
                         move |window: &Window| {
                             text_layout
-                                .index_for_position(window.mouse_position())
+                                .index_for_position(window.mouse_position().into())
                                 .is_ok()
                                 && hitbox.is_hovered(window)
                                 && pending_mouse_down.get().is_none()

@@ -27,10 +27,10 @@ use wayland_protocols_wlr::layer_shell::v1::client::zwlr_layer_surface_v1;
 
 use crate::{
     AnyWindowHandle, Bounds, Decorations, Globals, GpuSpecs, Modifiers, Output, Pixels,
-    PlatformDisplay, PlatformInput, Point, PromptButton, PromptLevel, RequestFrameOptions,
-    ResizeEdge, Size, Tiling, WaylandClientStatePtr, WindowAppearance, WindowBackgroundAppearance,
-    WindowBounds, WindowControlArea, WindowControls, WindowDecorations, WindowParams,
-    layer_shell::LayerShellNotSupportedError, px, size,
+    PlatformDisplay, PlatformInput, Point, Point2, PromptButton, PromptLevel, Px,
+    RequestFrameOptions, ResizeEdge, Size, Tiling, WaylandClientStatePtr, WindowAppearance,
+    WindowBackgroundAppearance, WindowBounds, WindowControlArea, WindowControls,
+    WindowDecorations, WindowParams, layer_shell::LayerShellNotSupportedError, px, size,
 };
 use crate::{
     Capslock,
@@ -1060,13 +1060,14 @@ impl PlatformWindow for WaylandWindow {
         })
     }
 
-    fn mouse_position(&self) -> Point<Pixels> {
+    fn mouse_position(&self) -> Point2<Px> {
         self.borrow()
             .client
             .get_client()
             .borrow()
             .mouse_location
             .unwrap_or_default()
+            .into()
     }
 
     fn modifiers(&self) -> Modifiers {
@@ -1226,15 +1227,15 @@ impl PlatformWindow for WaylandWindow {
         state.renderer.sprite_atlas().clone()
     }
 
-    fn show_window_menu(&self, position: Point<Pixels>) {
+    fn show_window_menu(&self, position: Point2<Px>) {
         let state = self.borrow();
         let serial = state.client.get_serial(SerialKind::MousePress);
         if let Some(toplevel) = state.surface_state.toplevel() {
             toplevel.show_window_menu(
                 &state.globals.seat,
                 serial,
-                position.x.0 as i32,
-                position.y.0 as i32,
+                position.x as i32,
+                position.y as i32,
             );
         }
     }

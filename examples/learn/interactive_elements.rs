@@ -306,7 +306,7 @@ impl Render for MouseEventsDemo {
                         }),
                     )
                     .on_mouse_move(cx.listener(|this, event: &MouseMoveEvent, _window, cx| {
-                        this.mouse_position = Some(event.position);
+                        this.mouse_position = Some(event.position.into());
                         cx.notify();
                     })),
             )

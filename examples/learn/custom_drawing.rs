@@ -9,8 +9,8 @@
 
 use gpui::{
     App, Application, Bounds, Colors, Context, Hsla, MouseButton, MouseDownEvent, MouseMoveEvent,
-    MouseUpEvent, Path, PathBuilder, Pixels, Point, Render, Rgba, Window, WindowBounds,
-    WindowOptions, canvas, div, fill, point, prelude::*, px, rgb, size,
+    MouseUpEvent, Path, PathBuilder, Pixels, Point, Render, Rgba, Window,
+    WindowBounds, WindowOptions, canvas, div, fill, point, prelude::*, px, rgb, size,
 };
 
 #[path = "../prelude.rs"]
@@ -86,9 +86,9 @@ fn create_star(center: Point<Pixels>, outer_radius: f32, inner_radius: f32) -> P
         let y = center.y - px(angle.sin() * radius);
 
         if i == 0 {
-            builder.move_to(point(x, y));
+            builder.move_to(point(x, y).into());
         } else {
-            builder.line_to(point(x, y));
+            builder.line_to(point(x, y).into());
         }
     }
 
@@ -98,9 +98,9 @@ fn create_star(center: Point<Pixels>, outer_radius: f32, inner_radius: f32) -> P
 
 fn create_triangle(p1: Point<Pixels>, p2: Point<Pixels>, p3: Point<Pixels>) -> Path<Pixels> {
     let mut builder = PathBuilder::fill();
-    builder.move_to(p1);
-    builder.line_to(p2);
-    builder.line_to(p3);
+    builder.move_to(p1.into());
+    builder.line_to(p2.into());
+    builder.line_to(p3.into());
     builder.close();
     builder.build().unwrap()
 }
@@ -131,13 +131,13 @@ fn custom_paths_canvas(colors: &Colors) -> impl IntoElement {
             // Draw a custom shape (arrow)
             let arrow_x = bounds.origin.x + px(200.);
             let mut arrow_builder = PathBuilder::fill();
-            arrow_builder.move_to(point(arrow_x, center_y));
-            arrow_builder.line_to(point(arrow_x + px(20.), center_y - px(20.)));
-            arrow_builder.line_to(point(arrow_x + px(20.), center_y - px(10.)));
-            arrow_builder.line_to(point(arrow_x + px(50.), center_y - px(10.)));
-            arrow_builder.line_to(point(arrow_x + px(50.), center_y + px(10.)));
-            arrow_builder.line_to(point(arrow_x + px(20.), center_y + px(10.)));
-            arrow_builder.line_to(point(arrow_x + px(20.), center_y + px(20.)));
+            arrow_builder.move_to(point(arrow_x, center_y).into());
+            arrow_builder.line_to(point(arrow_x + px(20.), center_y - px(20.)).into());
+            arrow_builder.line_to(point(arrow_x + px(20.), center_y - px(10.)).into());
+            arrow_builder.line_to(point(arrow_x + px(50.), center_y - px(10.)).into());
+            arrow_builder.line_to(point(arrow_x + px(50.), center_y + px(10.)).into());
+            arrow_builder.line_to(point(arrow_x + px(20.), center_y + px(10.)).into());
+            arrow_builder.line_to(point(arrow_x + px(20.), center_y + px(20.)).into());
             arrow_builder.close();
             let arrow = arrow_builder.build().unwrap();
             window.paint_path(arrow, accent);
@@ -196,7 +196,7 @@ impl DrawingCanvas {
     ) {
         if event.button == MouseButton::Left {
             self.is_drawing = true;
-            self.current_line = vec![event.position];
+            self.current_line = vec![event.position.into()];
             cx.notify();
         }
     }
@@ -208,7 +208,7 @@ impl DrawingCanvas {
         cx: &mut Context<Self>,
     ) {
         if self.is_drawing {
-            self.current_line.push(event.position);
+            self.current_line.push(event.position.into());
             cx.notify();
         }
     }
@@ -256,10 +256,10 @@ impl DrawingCanvas {
             let py_offset = px(dx_f / len * thickness / 2.0);
 
             let mut builder = PathBuilder::fill();
-            builder.move_to(point(start.x + px_offset, start.y + py_offset));
-            builder.line_to(point(end.x + px_offset, end.y + py_offset));
-            builder.line_to(point(end.x - px_offset, end.y - py_offset));
-            builder.line_to(point(start.x - px_offset, start.y - py_offset));
+            builder.move_to(point(start.x + px_offset, start.y + py_offset).into());
+            builder.line_to(point(end.x + px_offset, end.y + py_offset).into());
+            builder.line_to(point(end.x - px_offset, end.y - py_offset).into());
+            builder.line_to(point(start.x - px_offset, start.y - py_offset).into());
             builder.close();
 
             if let Ok(path) = builder.build() {

@@ -163,7 +163,8 @@ impl TextInput {
         }
     }
 
-    fn index_for_mouse_position(&self, position: Point<Pixels>) -> usize {
+    fn index_for_mouse_position(&self, position: impl Into<Point<Pixels>>) -> usize {
+        let position: Point<Pixels> = position.into();
         if self.content.is_empty() {
             return 0;
         }

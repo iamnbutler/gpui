@@ -3,7 +3,7 @@ use crate::{
     BackgroundExecutor, BorrowAppContext, Bounds, Capslock, ClipboardItem, DrawPhase, Drawable,
     Element, Empty, EventEmitter, ForegroundExecutor, Global, InputEvent, Keystroke, Modifiers,
     ModifiersChangedEvent, MouseButton, MouseDownEvent, MouseMoveEvent, MouseUpEvent, Pixels,
-    Platform, Point, Render, Result, Size, Task, TestDispatcher, TestPlatform,
+    Platform, Point, Point2, Px, Render, Result, Size, Task, TestDispatcher, TestPlatform,
     TestScreenCaptureSource, TestWindow, TextSystem, VisualContext, Window, WindowBounds,
     WindowHandle, WindowOptions, app::GpuiMode,
 };
@@ -742,12 +742,12 @@ impl VisualTestContext {
     /// Simulate a mouse move event to the given point
     pub fn simulate_mouse_move(
         &mut self,
-        position: Point<Pixels>,
+        position: impl Into<Point2<Px>>,
         button: impl Into<Option<MouseButton>>,
         modifiers: Modifiers,
     ) {
         self.simulate_event(MouseMoveEvent {
-            position,
+            position: position.into(),
             modifiers,
             pressed_button: button.into(),
         })
@@ -756,12 +756,12 @@ impl VisualTestContext {
     /// Simulate a mouse down event to the given point
     pub fn simulate_mouse_down(
         &mut self,
-        position: Point<Pixels>,
+        position: impl Into<Point2<Px>>,
         button: MouseButton,
         modifiers: Modifiers,
     ) {
         self.simulate_event(MouseDownEvent {
-            position,
+            position: position.into(),
             modifiers,
             button,
             click_count: 1,
@@ -772,12 +772,12 @@ impl VisualTestContext {
     /// Simulate a mouse up event to the given point
     pub fn simulate_mouse_up(
         &mut self,
-        position: Point<Pixels>,
+        position: impl Into<Point2<Px>>,
         button: MouseButton,
         modifiers: Modifiers,
     ) {
         self.simulate_event(MouseUpEvent {
-            position,
+            position: position.into(),
             modifiers,
             button,
             click_count: 1,
@@ -785,7 +785,8 @@ impl VisualTestContext {
     }
 
     /// Simulate a primary mouse click at the given point
-    pub fn simulate_click(&mut self, position: Point<Pixels>, modifiers: Modifiers) {
+    pub fn simulate_click(&mut self, position: impl Into<Point2<Px>>, modifiers: Modifiers) {
+        let position: Point2<Px> = position.into();
         self.simulate_event(MouseDownEvent {
             position,
             modifiers,
@@ -841,7 +842,7 @@ impl VisualTestContext {
             window.invalidator.set_phase(DrawPhase::Prepaint);
             let mut element = Drawable::new(f(window, cx));
             element.layout_as_root(space.into(), window, cx);
-            window.with_absolute_element_offset(origin, |window| element.prepaint(window, cx));
+            window.with_absolute_element_offset(origin.into(), |window| element.prepaint(window, cx));
 
             window.invalidator.set_phase(DrawPhase::Paint);
             let (request_layout_state, prepaint_state) = element.paint(window, cx);

@@ -589,7 +589,7 @@ impl PlatformWindow for WindowsWindow {
         Some(Rc::new(self.state.display.get()))
     }
 
-    fn mouse_position(&self) -> Point<Pixels> {
+    fn mouse_position(&self) -> Point2<Px> {
         let scale_factor = self.scale_factor();
         let point = unsafe {
             let mut point: POINT = std::mem::zeroed();
@@ -599,7 +599,7 @@ impl PlatformWindow for WindowsWindow {
             ScreenToClient(self.0.hwnd, &mut point).ok().log_err();
             point
         };
-        logical_point(point.x as f32, point.y as f32, scale_factor)
+        logical_point(point.x as f32, point.y as f32, scale_factor).into()
     }
 
     fn modifiers(&self) -> Modifiers {

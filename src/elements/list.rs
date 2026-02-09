@@ -1085,7 +1085,7 @@ impl Element for List {
                 list_state.0.borrow_mut().scroll(
                     &scroll_top,
                     height,
-                    pixel_delta,
+                    pixel_delta.into(),
                     current_view,
                     window,
                     cx,
@@ -1183,15 +1183,13 @@ impl sum_tree::SeekTarget<'_, ListItemSummary, ListItemSummary> for Height {
 #[cfg(test)]
 mod test {
 
-    use gpui::{ScrollDelta, ScrollWheelEvent};
-
     use crate::{self as gpui, TestAppContext};
 
     #[gpui::test]
     fn test_reset_after_paint_before_scroll(cx: &mut TestAppContext) {
         use crate::{
-            AppContext, Context, Element, IntoElement, ListState, Render, Styled, Window, div,
-            list, point, px, size,
+            AppContext, Context, Element, IntoElement, ListState, Point2, Render, ScrollDelta,
+            ScrollWheelEvent, Styled, Window, div, list, point, px, size,
         };
 
         let cx = cx.add_empty_window();
@@ -1225,8 +1223,8 @@ mod test {
 
         // And then receive a scroll event _before_ the next paint
         cx.simulate_event(ScrollWheelEvent {
-            position: point(px(1.), px(1.)),
-            delta: ScrollDelta::Pixels(point(px(0.), px(-500.))),
+            position: Point2::new(1., 1.),
+            delta: ScrollDelta::Pixels(Point2::new(0., -500.)),
             ..Default::default()
         });
 

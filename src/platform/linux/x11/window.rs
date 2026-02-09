@@ -5,9 +5,9 @@ use crate::platform::blade::{BladeContext, BladeRenderer, BladeSurfaceConfig};
 use crate::{
     AnyWindowHandle, Bounds, Decorations, DevicePixels, ForegroundExecutor, GpuSpecs, Modifiers,
     Pixels, PlatformAtlas, PlatformDisplay, PlatformInput, PlatformInputHandler, PlatformWindow,
-    Point, PromptButton, PromptLevel, RequestFrameOptions, ResizeEdge, ScaledPixels, Scene, Size,
-    Tiling, WindowAppearance, WindowBackgroundAppearance, WindowBounds, WindowControlArea,
-    WindowDecorations, WindowKind, WindowParams, X11ClientStatePtr, px, size,
+    Point, Point2, PromptButton, PromptLevel, Px, RequestFrameOptions, ResizeEdge, ScaledPixels,
+    Scene, Size, Tiling, WindowAppearance, WindowBackgroundAppearance, WindowBounds,
+    WindowControlArea, WindowDecorations, WindowKind, WindowParams, X11ClientStatePtr, px, size,
 };
 
 use blade_graphics as gpu;
@@ -1236,14 +1236,14 @@ impl PlatformWindow for X11Window {
         Some(self.0.state.borrow().display.clone())
     }
 
-    fn mouse_position(&self) -> Point<Pixels> {
+    fn mouse_position(&self) -> Point2<Px> {
         get_reply(
             || "X11 QueryPointer failed.",
             self.0.xcb.query_pointer(self.0.x_window),
         )
         .log_err()
-        .map_or(Point::new(Pixels::ZERO, Pixels::ZERO), |reply| {
-            Point::new((reply.root_x as u32).into(), (reply.root_y as u32).into())
+        .map_or(Point2::new(0.0, 0.0), |reply| {
+            Point2::new(reply.root_x as f32, reply.root_y as f32)
         })
     }
 
@@ -1480,7 +1480,7 @@ impl PlatformWindow for X11Window {
         inner.renderer.sprite_atlas().clone()
     }
 
-    fn show_window_menu(&self, position: Point<Pixels>) {
+    fn show_window_menu(&self, position: Point2<Px>) {
         let state = self.0.state.borrow();
 
         check_reply(
@@ -1489,7 +1489,7 @@ impl PlatformWindow for X11Window {
         )
         .log_err();
 
-        let Some(coords) = self.get_root_position(position).log_err() else {
+        let Some(coords) = self.get_root_position(position.into()).log_err() else {
             return;
         };
         let message = ClientMessageEvent::new(

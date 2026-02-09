@@ -20,6 +20,224 @@ use taffy::prelude::{TaffyGridLine, TaffyGridSpan};
 
 use crate::{App, DisplayId};
 
+// Re-export glamour types used throughout GPUI
+pub use glamour::{self, Angle, Box2, Point2, Rect, Size2, Transform2, Vector2};
+
+/// Logical pixels — the primary coordinate space for UI layout and interaction.
+pub struct Px;
+impl glamour::Unit for Px {
+    type Scalar = f32;
+}
+
+/// Physical device pixels — used at the GPU/display boundary.
+pub struct DevicePx;
+impl glamour::Unit for DevicePx {
+    type Scalar = i32;
+}
+
+/// Scaled pixels — logical pixels multiplied by the display scale factor.
+/// Used in the rendering pipeline between layout and rasterization.
+pub struct ScaledPx;
+impl glamour::Unit for ScaledPx {
+    type Scalar = f32;
+}
+
+// Type aliases for common pixel-space types
+/// A point in logical pixel coordinates.
+pub type PixelPoint = Point2<Px>;
+/// A size in logical pixel coordinates.
+pub type PixelSize = Size2<Px>;
+/// A rectangle in logical pixel coordinates.
+pub type PixelRect = Rect<Px>;
+
+/// A point in physical device pixel coordinates.
+pub type DevicePoint = Point2<DevicePx>;
+/// A size in physical device pixel coordinates.
+pub type DeviceSize = Size2<DevicePx>;
+/// A rectangle in physical device pixel coordinates.
+pub type DeviceRect = Rect<DevicePx>;
+
+/// A point in scaled pixel coordinates.
+pub type ScaledPoint = Point2<ScaledPx>;
+/// A size in scaled pixel coordinates.
+pub type ScaledSize = Size2<ScaledPx>;
+/// A rectangle in scaled pixel coordinates.
+pub type ScaledRect = Rect<ScaledPx>;
+
+/// A pair of values along each axis, for layout properties where the
+/// inner type is not a numeric scalar (e.g., Length, AvailableSpace).
+/// For geometry with numeric scalars, use glamour's Size2 instead.
+#[derive(Refineable, Default, Clone, Copy, PartialEq, Hash, Debug, Serialize, Deserialize)]
+#[refineable(Debug, PartialEq, Serialize, Deserialize)]
+pub struct LayoutPair<T: Clone + Debug + Default + PartialEq> {
+    /// The value along the horizontal axis.
+    pub width: T,
+    /// The value along the vertical axis.
+    pub height: T,
+}
+
+impl<T: Clone + Debug + Default + PartialEq> LayoutPair<T> {
+    /// Creates a new `LayoutPair` with the given width and height.
+    pub const fn new(width: T, height: T) -> Self {
+        Self { width, height }
+    }
+
+    /// Applies a function to both width and height, returning a new `LayoutPair`.
+    pub fn map<U: Clone + Debug + Default + PartialEq>(
+        &self,
+        f: impl Fn(T) -> U,
+    ) -> LayoutPair<U> {
+        LayoutPair {
+            width: f(self.width.clone()),
+            height: f(self.height.clone()),
+        }
+    }
+}
+
+// Bidirectional conversions between GPUI legacy types and glamour types.
+// These allow incremental migration — callers can convert at boundaries.
+
+impl From<Point<Pixels>> for Point2<Px> {
+    fn from(p: Point<Pixels>) -> Self {
+        Point2::new(p.x.0, p.y.0)
+    }
+}
+
+impl From<Point2<Px>> for Point<Pixels> {
+    fn from(p: Point2<Px>) -> Self {
+        Point::new(Pixels(p.x), Pixels(p.y))
+    }
+}
+
+impl From<Point<ScaledPixels>> for Point2<ScaledPx> {
+    fn from(p: Point<ScaledPixels>) -> Self {
+        Point2::new(p.x.0, p.y.0)
+    }
+}
+
+impl From<Point2<ScaledPx>> for Point<ScaledPixels> {
+    fn from(p: Point2<ScaledPx>) -> Self {
+        Point::new(ScaledPixels(p.x), ScaledPixels(p.y))
+    }
+}
+
+impl From<Point<DevicePixels>> for Point2<DevicePx> {
+    fn from(p: Point<DevicePixels>) -> Self {
+        Point2::new(p.x.0, p.y.0)
+    }
+}
+
+impl From<Point2<DevicePx>> for Point<DevicePixels> {
+    fn from(p: Point2<DevicePx>) -> Self {
+        Point::new(DevicePixels(p.x), DevicePixels(p.y))
+    }
+}
+
+impl From<Size<Pixels>> for Size2<Px> {
+    fn from(s: Size<Pixels>) -> Self {
+        Size2::new(s.width.0, s.height.0)
+    }
+}
+
+impl From<Size2<Px>> for Size<Pixels> {
+    fn from(s: Size2<Px>) -> Self {
+        Size::new(Pixels(s.width), Pixels(s.height))
+    }
+}
+
+impl From<Size<ScaledPixels>> for Size2<ScaledPx> {
+    fn from(s: Size<ScaledPixels>) -> Self {
+        Size2::new(s.width.0, s.height.0)
+    }
+}
+
+impl From<Size2<ScaledPx>> for Size<ScaledPixels> {
+    fn from(s: Size2<ScaledPx>) -> Self {
+        Size::new(ScaledPixels(s.width), ScaledPixels(s.height))
+    }
+}
+
+impl From<Size<DevicePixels>> for Size2<DevicePx> {
+    fn from(s: Size<DevicePixels>) -> Self {
+        Size2::new(s.width.0, s.height.0)
+    }
+}
+
+impl From<Size2<DevicePx>> for Size<DevicePixels> {
+    fn from(s: Size2<DevicePx>) -> Self {
+        Size::new(DevicePixels(s.width), DevicePixels(s.height))
+    }
+}
+
+impl From<Bounds<Pixels>> for Rect<Px> {
+    fn from(b: Bounds<Pixels>) -> Self {
+        Rect::new(b.origin.into(), b.size.into())
+    }
+}
+
+impl From<Rect<Px>> for Bounds<Pixels> {
+    fn from(r: Rect<Px>) -> Self {
+        Bounds {
+            origin: Point::new(Pixels(r.origin.x), Pixels(r.origin.y)),
+            size: Size::new(Pixels(r.size.width), Pixels(r.size.height)),
+        }
+    }
+}
+
+impl From<Bounds<ScaledPixels>> for Rect<ScaledPx> {
+    fn from(b: Bounds<ScaledPixels>) -> Self {
+        Rect::new(b.origin.into(), b.size.into())
+    }
+}
+
+impl From<Rect<ScaledPx>> for Bounds<ScaledPixels> {
+    fn from(r: Rect<ScaledPx>) -> Self {
+        Bounds {
+            origin: Point::new(ScaledPixels(r.origin.x), ScaledPixels(r.origin.y)),
+            size: Size::new(ScaledPixels(r.size.width), ScaledPixels(r.size.height)),
+        }
+    }
+}
+
+impl From<Bounds<DevicePixels>> for Rect<DevicePx> {
+    fn from(b: Bounds<DevicePixels>) -> Self {
+        Rect::new(b.origin.into(), b.size.into())
+    }
+}
+
+impl From<Rect<DevicePx>> for Bounds<DevicePixels> {
+    fn from(r: Rect<DevicePx>) -> Self {
+        Bounds {
+            origin: Point::new(DevicePixels(r.origin.x), DevicePixels(r.origin.y)),
+            size: Size::new(DevicePixels(r.size.width), DevicePixels(r.size.height)),
+        }
+    }
+}
+
+impl<T: Clone + Debug + Default + PartialEq> Along for LayoutPair<T> {
+    type Unit = T;
+
+    fn along(&self, axis: Axis) -> T {
+        match axis {
+            Axis::Horizontal => self.width.clone(),
+            Axis::Vertical => self.height.clone(),
+        }
+    }
+
+    fn apply_along(&self, axis: Axis, f: impl FnOnce(T) -> T) -> Self {
+        match axis {
+            Axis::Horizontal => LayoutPair {
+                width: f(self.width.clone()),
+                height: self.height.clone(),
+            },
+            Axis::Vertical => LayoutPair {
+                width: self.width.clone(),
+                height: f(self.height.clone()),
+            },
+        }
+    }
+}
+
 /// Axis in a 2D cartesian space.
 #[derive(Copy, Clone, PartialEq, Eq, Serialize, Deserialize, Debug)]
 pub enum Axis {

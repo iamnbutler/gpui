@@ -633,7 +633,7 @@ impl AnyElement {
         window: &mut Window,
         cx: &mut App,
     ) -> Option<FocusHandle> {
-        window.with_absolute_element_offset(origin, |window| self.prepaint(window, cx))
+        window.with_absolute_element_offset(origin.into(), |window| self.prepaint(window, cx))
     }
 
     /// Performs layout on this element in the available space, then prepaints it at the given absolute origin.
@@ -646,7 +646,7 @@ impl AnyElement {
         cx: &mut App,
     ) -> Option<FocusHandle> {
         self.layout_as_root(available_space, window, cx);
-        window.with_absolute_element_offset(origin, |window| self.prepaint(window, cx))
+        window.with_absolute_element_offset(origin.into(), |window| self.prepaint(window, cx))
     }
 }
 

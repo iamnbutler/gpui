@@ -1,12 +1,12 @@
 use crate::{
     Capslock, KeyDownEvent, KeyUpEvent, Keystroke, Modifiers, ModifiersChangedEvent, MouseButton,
     MouseDownEvent, MouseExitEvent, MouseMoveEvent, MouseUpEvent, NavigationDirection, Pixels,
-    PlatformInput, ScrollDelta, ScrollWheelEvent, TouchPhase,
+    PlatformInput, Point2, ScrollDelta, ScrollWheelEvent, TouchPhase,
     platform::mac::{
         LMGetKbdType, NSStringExt, TISCopyCurrentKeyboardLayoutInputSource,
         TISGetInputSourceProperty, UCKeyTranslate, kTISPropertyUnicodeKeyLayoutData,
     },
-    point, px,
+    point,
 };
 use cocoa::{
     appkit::{NSEvent, NSEventModifierFlags, NSEventPhase, NSEventType},
@@ -151,10 +151,10 @@ impl PlatformInput {
                     window_height.map(|window_height| {
                         Self::MouseDown(MouseDownEvent {
                             button,
-                            position: point(
-                                px(native_event.locationInWindow().x as f32),
+                            position: Point2::new(
+                                native_event.locationInWindow().x as f32,
                                 // MacOS screen coordinates are relative to bottom left
-                                window_height - px(native_event.locationInWindow().y as f32),
+                                window_height.0 - native_event.locationInWindow().y as f32,
                             ),
                             modifiers: read_modifiers(native_event),
                             click_count: native_event.clickCount() as usize,
@@ -178,9 +178,9 @@ impl PlatformInput {
                     window_height.map(|window_height| {
                         Self::MouseUp(MouseUpEvent {
                             button,
-                            position: point(
-                                px(native_event.locationInWindow().x as f32),
-                                window_height - px(native_event.locationInWindow().y as f32),
+                            position: Point2::new(
+                                native_event.locationInWindow().x as f32,
+                                window_height.0 - native_event.locationInWindow().y as f32,
                             ),
                             modifiers: read_modifiers(native_event),
                             click_count: native_event.clickCount() as usize,
@@ -202,9 +202,9 @@ impl PlatformInput {
                         Some(direction) => window_height.map(|window_height| {
                             Self::MouseDown(MouseDownEvent {
                                 button: MouseButton::Navigate(direction),
-                                position: point(
-                                    px(native_event.locationInWindow().x as f32),
-                                    window_height - px(native_event.locationInWindow().y as f32),
+                                position: Point2::new(
+                                    native_event.locationInWindow().x as f32,
+                                    window_height.0 - native_event.locationInWindow().y as f32,
                                 ),
                                 modifiers: read_modifiers(native_event),
                                 click_count: 1,
@@ -223,21 +223,19 @@ impl PlatformInput {
                         _ => TouchPhase::Moved,
                     };
 
-                    let raw_data = point(
-                        native_event.scrollingDeltaX() as f32,
-                        native_event.scrollingDeltaY() as f32,
-                    );
+                    let delta_x = native_event.scrollingDeltaX() as f32;
+                    let delta_y = native_event.scrollingDeltaY() as f32;
 
                     let delta = if native_event.hasPreciseScrollingDeltas() == YES {
-                        ScrollDelta::Pixels(raw_data.map(px))
+                        ScrollDelta::Pixels(Point2::new(delta_x, delta_y))
                     } else {
-                        ScrollDelta::Lines(raw_data)
+                        ScrollDelta::Lines(point(delta_x, delta_y))
                     };
 
                     Self::ScrollWheel(ScrollWheelEvent {
-                        position: point(
-                            px(native_event.locationInWindow().x as f32),
-                            window_height - px(native_event.locationInWindow().y as f32),
+                        position: Point2::new(
+                            native_event.locationInWindow().x as f32,
+                            window_height.0 - native_event.locationInWindow().y as f32,
                         ),
                         delta,
                         touch_phase: phase,
@@ -260,9 +258,9 @@ impl PlatformInput {
                     window_height.map(|window_height| {
                         Self::MouseMove(MouseMoveEvent {
                             pressed_button: Some(pressed_button),
-                            position: point(
-                                px(native_event.locationInWindow().x as f32),
-                                window_height - px(native_event.locationInWindow().y as f32),
+                            position: Point2::new(
+                                native_event.locationInWindow().x as f32,
+                                window_height.0 - native_event.locationInWindow().y as f32,
                             ),
                             modifiers: read_modifiers(native_event),
                         })
@@ -270,9 +268,9 @@ impl PlatformInput {
                 }
                 NSEventType::NSMouseMoved => window_height.map(|window_height| {
                     Self::MouseMove(MouseMoveEvent {
-                        position: point(
-                            px(native_event.locationInWindow().x as f32),
-                            window_height - px(native_event.locationInWindow().y as f32),
+                        position: Point2::new(
+                            native_event.locationInWindow().x as f32,
+                            window_height.0 - native_event.locationInWindow().y as f32,
                         ),
                         pressed_button: None,
                         modifiers: read_modifiers(native_event),
@@ -280,11 +278,10 @@ impl PlatformInput {
                 }),
                 NSEventType::NSMouseExited => window_height.map(|window_height| {
                     Self::MouseExited(MouseExitEvent {
-                        position: point(
-                            px(native_event.locationInWindow().x as f32),
-                            window_height - px(native_event.locationInWindow().y as f32),
+                        position: Point2::new(
+                            native_event.locationInWindow().x as f32,
+                            window_height.0 - native_event.locationInWindow().y as f32,
                         ),
-
                         pressed_button: None,
                         modifiers: read_modifiers(native_event),
                     })

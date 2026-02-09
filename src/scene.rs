@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::{
     AtlasTextureId, AtlasTile, Background, Bounds, ContentMask, Corners, Edges, Hsla, Pixels,
-    Point, Radians, ScaledPixels, Size, bounds_tree::BoundsTree, point,
+    Point, Point2, Px, Radians, ScaledPx, ScaledPixels, Size, bounds_tree::BoundsTree, point,
 };
 use std::{
     fmt::Debug,
@@ -514,6 +514,9 @@ pub enum BorderStyle {
 }
 
 /// A data type representing a 2 dimensional transformation that can be applied to an element.
+///
+/// The struct layout matches the GPU shader definition: a row-major 2x2 rotation/scale
+/// matrix followed by a 2D translation vector.
 #[derive(Debug, Clone, Copy, PartialEq)]
 #[repr(C)]
 pub struct TransformationMatrix {
@@ -529,37 +532,28 @@ impl Eq for TransformationMatrix {}
 impl TransformationMatrix {
     /// The unit matrix, has no effect.
     pub fn unit() -> Self {
-        Self {
-            rotation_scale: [[1.0, 0.0], [0.0, 1.0]],
-            translation: [0.0, 0.0],
-        }
+        Self::from(glam::Affine2::IDENTITY)
     }
 
     /// Move the origin by a given point
-    pub fn translate(mut self, point: Point<ScaledPixels>) -> Self {
-        self.compose(Self {
-            rotation_scale: [[1.0, 0.0], [0.0, 1.0]],
-            translation: [point.x.0, point.y.0],
-        })
+    pub fn translate(self, point: Point2<ScaledPx>) -> Self {
+        let affine = glam::Affine2::from(self);
+        let translation = glam::Affine2::from_translation(glam::vec2(point.x, point.y));
+        Self::from(affine * translation)
     }
 
     /// Clockwise rotation in radians around the origin
     pub fn rotate(self, angle: Radians) -> Self {
-        self.compose(Self {
-            rotation_scale: [
-                [angle.0.cos(), -angle.0.sin()],
-                [angle.0.sin(), angle.0.cos()],
-            ],
-            translation: [0.0, 0.0],
-        })
+        let affine = glam::Affine2::from(self);
+        let rotation = glam::Affine2::from_angle(angle.0);
+        Self::from(affine * rotation)
     }
 
     /// Scale around the origin
     pub fn scale(self, size: Size<f32>) -> Self {
-        self.compose(Self {
-            rotation_scale: [[size.width, 0.0], [0.0, size.height]],
-            translation: [0.0, 0.0],
-        })
+        let affine = glam::Affine2::from(self);
+        let scale = glam::Affine2::from_scale(glam::vec2(size.width, size.height));
+        Self::from(affine * scale)
     }
 
     /// Perform matrix multiplication with another transformation
@@ -567,52 +561,47 @@ impl TransformationMatrix {
     /// applying both transformations: first, `other`, then `self`.
     #[inline]
     pub fn compose(self, other: TransformationMatrix) -> TransformationMatrix {
-        if other == Self::unit() {
-            return self;
-        }
-        // Perform matrix multiplication
-        TransformationMatrix {
-            rotation_scale: [
-                [
-                    self.rotation_scale[0][0] * other.rotation_scale[0][0]
-                        + self.rotation_scale[0][1] * other.rotation_scale[1][0],
-                    self.rotation_scale[0][0] * other.rotation_scale[0][1]
-                        + self.rotation_scale[0][1] * other.rotation_scale[1][1],
-                ],
-                [
-                    self.rotation_scale[1][0] * other.rotation_scale[0][0]
-                        + self.rotation_scale[1][1] * other.rotation_scale[1][0],
-                    self.rotation_scale[1][0] * other.rotation_scale[0][1]
-                        + self.rotation_scale[1][1] * other.rotation_scale[1][1],
-                ],
-            ],
-            translation: [
-                self.translation[0]
-                    + self.rotation_scale[0][0] * other.translation[0]
-                    + self.rotation_scale[0][1] * other.translation[1],
-                self.translation[1]
-                    + self.rotation_scale[1][0] * other.translation[0]
-                    + self.rotation_scale[1][1] * other.translation[1],
-            ],
-        }
+        let self_affine = glam::Affine2::from(self);
+        let other_affine = glam::Affine2::from(other);
+        Self::from(self_affine * other_affine)
     }
 
     /// Apply transformation to a point, mainly useful for debugging
-    pub fn apply(&self, point: Point<Pixels>) -> Point<Pixels> {
-        let input = [point.x.0, point.y.0];
-        let mut output = self.translation;
-        for (i, output_cell) in output.iter_mut().enumerate() {
-            for (k, input_cell) in input.iter().enumerate() {
-                *output_cell += self.rotation_scale[i][k] * *input_cell;
-            }
-        }
-        Point::new(output[0].into(), output[1].into())
+    pub fn apply(&self, point: Point2<Px>) -> Point2<Px> {
+        let affine = glam::Affine2::from(*self);
+        let result = affine.transform_point2(glam::vec2(point.x, point.y));
+        Point2::new(result.x, result.y)
     }
 }
 
 impl Default for TransformationMatrix {
     fn default() -> Self {
         Self::unit()
+    }
+}
+
+impl From<glam::Affine2> for TransformationMatrix {
+    fn from(affine: glam::Affine2) -> Self {
+        let cols = affine.matrix2.to_cols_array_2d();
+        Self {
+            // glam stores column-major, our GPU layout is row-major
+            rotation_scale: [[cols[0][0], cols[1][0]], [cols[0][1], cols[1][1]]],
+            translation: [affine.translation.x, affine.translation.y],
+        }
+    }
+}
+
+impl From<TransformationMatrix> for glam::Affine2 {
+    fn from(matrix: TransformationMatrix) -> Self {
+        // Our layout is row-major, glam expects column-major
+        let rs = matrix.rotation_scale;
+        glam::Affine2 {
+            matrix2: glam::Mat2::from_cols(
+                glam::vec2(rs[0][0], rs[1][0]),
+                glam::vec2(rs[0][1], rs[1][1]),
+            ),
+            translation: glam::vec2(matrix.translation[0], matrix.translation[1]),
+        }
     }
 }
 
