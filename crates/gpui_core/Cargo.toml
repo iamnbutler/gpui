@@ -1,0 +1,9 @@
+[package]
+name = "gpui_core"
+version = "0.1.0"
+edition = "2024"
+license = "Apache-2.0"
+description = "Platform-independent core types and traits for GPUI"
+publish = false
+
+[dependencies]
