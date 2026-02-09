@@ -355,8 +355,11 @@ impl PlatformTextSystem for ParleyTextSystem {
             for item in line.items() {
                 if let parley::layout::PositionedLayoutItem::GlyphRun(glyph_run) = item {
                     let parley_run = glyph_run.run();
-                    let font_id =
-                        run_font_id_from_parley(parley_run.font(), font_runs, &state_ref.fonts);
+                    let font_id = font_id_from_parley_font(
+                        parley_run.font(),
+                        font_runs,
+                        &mut state_ref.fonts,
+                    );
                     let is_emoji = state_ref.fonts.get(font_id.0).is_some_and(|f| f.is_emoji);
 
                     let mut glyphs = Vec::new();
@@ -404,18 +407,18 @@ impl PlatformTextSystem for ParleyTextSystem {
     }
 }
 
-/// Try to match a parley font reference back to one of our FontId's.
-/// Falls back to the first font run's font_id if no match is found.
-fn run_font_id_from_parley(
+/// Match a parley font reference back to one of our FontId's.
+/// If parley performed font fallback (e.g. to Apple Color Emoji), the font
+/// won't be in our loaded_fonts vec yet — register it on the fly.
+fn font_id_from_parley_font(
     parley_font: &parley::FontData,
     font_runs: &[FontRun],
-    loaded_fonts: &[LoadedFont],
+    loaded_fonts: &mut Vec<LoadedFont>,
 ) -> FontId {
-    // Parley may do font fallback, giving us a different font than requested.
-    // Try matching by font data pointer/index.
     let parley_data = parley_font.data.data();
     let parley_index = parley_font.index;
 
+    // Check if we already have this font loaded (by data pointer + index)
     for (idx, loaded) in loaded_fonts.iter().enumerate() {
         if loaded.font_index == parley_index
             && loaded.font_data.len() == parley_data.len()
@@ -425,8 +428,34 @@ fn run_font_id_from_parley(
         }
     }
 
-    // Fallback: just use the first font run's ID
-    font_runs.first().map(|r| r.font_id).unwrap_or(FontId(0))
+    // Parley fell back to a font we haven't seen — register it now.
+    // This happens for emoji, CJK fallback, etc.
+    let font_data = Arc::new(parley_data.to_vec());
+    let is_emoji = detect_emoji_font(&font_data, parley_index);
+    let family_name = skrifa::FontRef::from_index(&font_data, parley_index)
+        .ok()
+        .and_then(|font_ref| {
+            use skrifa::MetadataProvider;
+            font_ref
+                .localized_strings(skrifa::string::StringId::FAMILY_NAME)
+                .find(|s| s.language() == Some("en"))
+                .or_else(|| {
+                    font_ref
+                        .localized_strings(skrifa::string::StringId::FAMILY_NAME)
+                        .next()
+                })
+                .map(|s| s.to_string())
+        })
+        .unwrap_or_else(|| "Unknown".to_string());
+
+    let font_id = FontId(loaded_fonts.len());
+    loaded_fonts.push(LoadedFont {
+        font_data,
+        font_index: parley_index,
+        is_emoji,
+        family_name,
+    });
+    font_id
 }
 
 impl ParleyTextSystemState {
