@@ -7,6 +7,8 @@
 
 mod color;
 mod shared_string;
+mod shared_uri;
 
 pub use color::*;
 pub use shared_string::*;
+pub use shared_uri::*;

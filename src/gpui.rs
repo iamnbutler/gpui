@@ -33,7 +33,6 @@ mod profiler;
 #[cfg(any(target_os = "windows", target_os = "linux"))]
 mod queue;
 mod scene;
-mod shared_uri;
 mod style;
 mod styled;
 mod subscription;
@@ -94,7 +93,6 @@ pub use profiler::*;
 pub(crate) use queue::{PriorityQueueReceiver, PriorityQueueSender};
 pub use refineable::*;
 pub use scene::*;
-pub use shared_uri::*;
 pub use smol::Timer;
 use std::{any::Any, future::Future};
 pub use style::*;
