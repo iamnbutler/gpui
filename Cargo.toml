@@ -14,7 +14,7 @@ categories = ["gui"]
 autoexamples = false
 
 [features]
-default = ["font-kit", "wayland", "x11", "windows-manifest"]
+default = ["wayland", "x11", "windows-manifest"]
 test-support = [
     "leak-detection",
     "collections/test-support",
@@ -41,8 +41,6 @@ wayland = [
     "blade-util",
     "bytemuck",
     "ashpd/wayland",
-    "cosmic-text",
-    "font-kit",
     "calloop-wayland-source",
     "wayland-backend",
     "wayland-client",
@@ -60,8 +58,6 @@ x11 = [
     "blade-util",
     "bytemuck",
     "ashpd",
-    "cosmic-text",
-    "font-kit",
     "as-raw-xcb-connection",
     "x11rb",
     "xkbcommon",
@@ -105,6 +101,7 @@ libc = "0.2"
 log = { version = "0.4.16", features = ["kv_unstable_serde", "serde"] }
 lyon = "1.0"
 num_cpus = "1.13"
+parley = "0.7.0"
 parking = "2.0.0"
 parking_lot = "0.12.1"
 pin-project = "1.1.10"
@@ -120,6 +117,7 @@ resvg = { version = "0.45.0", default-features = false, features = [
 ] }
 schemars = { version = "1.0", features = ["indexmap2"] }
 seahash = "4.1"
+skrifa = "0.40"
 semver = { version = "1.0", features = ["serde"] }
 serde = { version = "1.0.221", features = ["derive", "rc"] }
 serde_json = { version = "1.0.144", features = ["preserve_order", "raw_value"] }
@@ -129,6 +127,7 @@ smol = "2.0"
 spin = "0.10.0"
 stacksafe = "0.1"
 strum = { version = "0.27.2", features = ["derive"] }
+swash = { version = "0.2.6", features = ["scale"] }
 sum_tree = { package = "gpui_sum_tree", version = "0.2.2" }
 taffy = "=0.9.0"
 thiserror = "2.0.12"
@@ -145,10 +144,8 @@ cocoa-foundation = "=0.2.0"
 core-foundation = "=0.10.0"
 core-foundation-sys = "0.8.6"
 core-graphics = "0.24"
-core-text = "21"
 core-video = { version = "0.4.3", features = ["metal"] }
 flume = "0.11"
-font-kit = { git = "https://github.com/zed-industries/font-kit", rev = "110523127440aefb11ce0cf280ae7c5071337ec5", package = "zed-font-kit", version = "0.14.1-zed", optional = true }
 foreign-types = "0.5"
 mach2 = "0.5"
 media = { package = "gpui_media", version = "0.2.2" }
@@ -156,9 +153,6 @@ metal = "0.29"
 objc = "0.2"
 objc2 = { version = "0.6", optional = true }
 objc2-metal = { version = "0.3", optional = true }
-
-[target.'cfg(any(target_os = "linux", target_os = "freebsd", target_os = "macos"))'.dependencies]
-pathfinder_geometry = "0.5"
 
 [target.'cfg(any(target_os = "linux", target_os = "freebsd", target_os = "windows"))'.dependencies]
 scap = { git = "https://github.com/zed-industries/scap", rev = "4afea48c3b002197176fb19cd0f9b180dd36eaac", default-features = false, package = "zed-scap", version = "0.0.8-zed", optional = true }
@@ -175,11 +169,6 @@ blade-graphics = { version = "0.7.0", optional = true }
 blade-macros = { version = "0.3.0", optional = true }
 blade-util = { version = "0.3.0", optional = true }
 bytemuck = { version = "1", optional = true }
-cosmic-text = { version = "0.14.0", optional = true }
-font-kit = { git = "https://github.com/zed-industries/font-kit", rev = "110523127440aefb11ce0cf280ae7c5071337ec5", package = "zed-font-kit", version = "0.14.1-zed", features = [
-    "source-fontconfig-dlopen",
-], optional = true }
-
 calloop = "0.14.3"
 filedescriptor = { version = "0.8.2", optional = true }
 open = { version = "5.2.0", optional = true }
@@ -303,6 +292,14 @@ naga = { version = "25.0", features = ["wgsl-in"] }
 
 [patch.crates-io]
 calloop = { git = "https://github.com/zed-industries/calloop" }
+
+# ============================================================================
+# Feature Examples
+# ============================================================================
+
+[[example]]
+name = "feature_text"
+path = "examples/feature/text.rs"
 
 # ============================================================================
 # Learn Examples - Educational examples for learning GPUI

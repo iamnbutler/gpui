@@ -3,12 +3,14 @@ mod font_features;
 mod line;
 mod line_layout;
 mod line_wrapper;
+mod parley_text_system;
 
 pub use font_fallbacks::*;
 pub use font_features::*;
 pub use line::*;
 pub use line_layout::*;
 pub use line_wrapper::*;
+pub(crate) use parley_text_system::*;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 
@@ -71,17 +73,11 @@ impl TextSystem {
             wrapper_pool: Mutex::default(),
             font_runs_pool: Mutex::default(),
             fallback_font_stack: smallvec![
-                // TODO: Remove this when Linux have implemented setting fallbacks.
-                font(".ZedMono"),
-                font(".ZedSans"),
-                font("Helvetica"),
+                font("Inter Variable"),
+                font("Helvetica"),    // macOS
+                font("DejaVu Sans"),  // Linux
                 font("Segoe UI"),     // Windows
-                font("Ubuntu"),       // Gnome (Ubuntu)
-                font("Adwaita Sans"), // Gnome 47
-                font("Cantarell"),    // Gnome
-                font("Noto Sans"),    // KDE
-                font("DejaVu Sans"),
-                font("Arial"), // macOS, Windows
+                font("Arial"),        // widely available
             ],
         }
     }
@@ -918,15 +914,9 @@ impl FontMetrics {
     }
 }
 
-#[allow(unused)]
 pub(crate) fn font_name_with_fallbacks<'a>(name: &'a str, system: &'a str) -> &'a str {
-    // Note: the "Zed Plex" fonts were deprecated as we are not allowed to use "Plex"
-    // in a derived font name. They are essentially indistinguishable from IBM Plex/Lilex,
-    // and so retained here for backward compatibility.
     match name {
         ".SystemUIFont" => system,
-        ".ZedSans" | "Zed Plex Sans" => "IBM Plex Sans",
-        ".ZedMono" | "Zed Plex Mono" => "Lilex",
         _ => name,
     }
 }

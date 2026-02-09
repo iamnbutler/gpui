@@ -23,12 +23,6 @@ use crate::platform::blade as renderer;
 
 mod attributed_string;
 
-#[cfg(feature = "font-kit")]
-mod open_type;
-
-#[cfg(feature = "font-kit")]
-mod text_system;
-
 mod platform;
 mod window;
 mod window_appearance;
@@ -52,8 +46,6 @@ pub(crate) use keyboard::*;
 pub(crate) use platform::*;
 pub(crate) use window::*;
 
-#[cfg(feature = "font-kit")]
-pub(crate) use text_system::*;
 
 /// A frame of video captured from a screen.
 pub(crate) type PlatformScreenCaptureFrame = CVImageBuffer;

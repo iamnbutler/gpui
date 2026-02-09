@@ -191,11 +191,7 @@ impl MacPlatform {
     pub(crate) fn new(headless: bool) -> Self {
         let dispatcher = Arc::new(MacDispatcher);
 
-        #[cfg(feature = "font-kit")]
-        let text_system = Arc::new(crate::MacTextSystem::new());
-
-        #[cfg(not(feature = "font-kit"))]
-        let text_system = Arc::new(crate::NoopTextSystem::new());
+        let text_system = Arc::new(crate::ParleyTextSystem::new());
 
         let keyboard_layout = MacKeyboardLayout::new();
         let keyboard_mapper = Rc::new(MacKeyboardMapper::new(keyboard_layout.id()));
